@@ -1,0 +1,42 @@
+<navigation-bar title="新增花销" back="{{true}}" color="black" background="#F4F7FB"></navigation-bar>
+<view class="page" wx:if="{{travel}}">
+  <view class="hero">
+    <view class="hero-title">新增花销</view>
+    <view class="hero-subtitle">{{travel.title}} · 记一笔新的开销</view>
+  </view>
+  <view class="section">
+    <view class="field">
+      <text class="label">标题</text>
+      <input class="input" placeholder="例如：晚餐" value="{{form.title}}" bindinput="onInput" data-field="title" />
+    </view>
+    <view class="field">
+      <text class="label">分类</text>
+      <input class="input" placeholder="例如：餐饮" value="{{form.category}}" bindinput="onInput" data-field="category" />
+    </view>
+    <view class="field">
+      <text class="label">金额</text>
+      <input class="input" type="digit" placeholder="0.00" value="{{form.amount}}" bindinput="onInput" data-field="amount" />
+    </view>
+    <view class="field">
+      <text class="label">备注</text>
+      <textarea class="textarea" placeholder="可选" value="{{form.note}}" bindinput="onInput" data-field="note"></textarea>
+    </view>
+    <view class="field">
+      <text class="label">付款人</text>
+      <picker mode="selector" range="{{travel.memberNames}}" bindchange="onPayerChange">
+        <view class="picker">{{travel.payerName}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <text class="label">参与分摊的人</text>
+      <view class="row row-wrap">
+        <block wx:for="{{travel.memberPills}}" wx:key="id">
+          <view class="chip {{item.selected ? 'chip-soft' : ''}}" data-id="{{item.id}}" bindtap="toggleParticipant">{{item.name}}</view>
+        </block>
+      </view>
+    </view>
+    <view class="field">
+      <button class="primary-btn" bindtap="saveExpense">记录花销</button>
+    </view>
+  </view>
+</view>

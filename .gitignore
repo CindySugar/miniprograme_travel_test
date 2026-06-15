@@ -1,0 +1,12 @@
+.DS_Store
+.codegraph/
+project.private.config.json
+backend/db.sqlite3
+backend/**/__pycache__/
+backend/.venv/
+backend/venv/
+miniprogram_npm/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

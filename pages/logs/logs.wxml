@@ -1,0 +1,129 @@
+<navigation-bar title="旅行详情" back="{{true}}" color="black" background="#F4F7FB"></navigation-bar>
+<view class="page" wx:if="{{travel}}">
+  <view class="hero">
+    <view class="hero-title">{{travel.title}}</view>
+    <view class="hero-subtitle">{{travel.destination || '未填写目的地'}} · {{travel.memberCount}} 人 · 已花 {{travel.summary.totalSpentDisplay}}</view>
+    <view class="row row-wrap" style="margin-top: 16rpx;">
+      <text class="chip">{{travel.status}}</text>
+      <text class="chip chip-soft">邀请码 {{travel.inviteCode}}</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <view>
+        <view class="section-title">成员</view>
+        <view class="section-meta">旅行里的每个人都可以参与分摊。</view>
+      </view>
+    </view>
+    <view class="field">
+      <text class="label">添加成员</text>
+      <view class="row">
+        <input class="input" placeholder="成员名字" value="{{memberName}}" bindinput="onMemberInput" />
+        <button class="secondary-btn" bindtap="addMember">添加</button>
+      </view>
+    </view>
+    <view class="list">
+      <view class="list-item" wx:for="{{travel.members}}" wx:key="id">
+        <view class="list-main">
+          <view class="title-line">
+            <text class="title">{{item.name}}</text>
+            <text class="chip" wx:if="{{item.isOwner}}">创建者</text>
+          </view>
+          <view class="subtext">{{item.openid || '未绑定微信身份'}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <view>
+        <view class="section-title">新增花销</view>
+        <view class="section-meta">默认可以让全部成员参与，也可只选部分人。</view>
+      </view>
+    </view>
+    <view class="field">
+      <text class="label">标题</text>
+      <input class="input" placeholder="例如：晚餐" value="{{expenseForm.title}}" bindinput="onExpenseInput" data-field="title" />
+    </view>
+    <view class="field">
+      <text class="label">分类</text>
+      <input class="input" placeholder="例如：餐饮" value="{{expenseForm.category}}" bindinput="onExpenseInput" data-field="category" />
+    </view>
+    <view class="field">
+      <text class="label">金额</text>
+      <input class="input" type="digit" placeholder="0.00" value="{{expenseForm.amount}}" bindinput="onExpenseInput" data-field="amount" />
+    </view>
+    <view class="field">
+      <text class="label">备注</text>
+      <textarea class="textarea" placeholder="可选" value="{{expenseForm.note}}" bindinput="onExpenseInput" data-field="note"></textarea>
+    </view>
+      <view class="field">
+        <text class="label">付款人</text>
+      <picker mode="selector" range="{{travel.memberNames}}" bindchange="onPayerChange">
+        <view class="picker">{{travel.payerName}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <text class="label">参与分摊的人</text>
+      <view class="row row-wrap">
+        <block wx:for="{{travel.memberPills}}" wx:key="id">
+          <view class="chip {{item.selected ? 'chip-soft' : ''}}" data-id="{{item.id}}" bindtap="toggleParticipant">{{item.name}}</view>
+        </block>
+      </view>
+    </view>
+    <view class="field">
+      <button class="primary-btn" bindtap="addExpense">记录花销</button>
+    </view>
+    <view class="field">
+      <button class="ghost-btn" bindtap="gotoExpense">打开独立记账页</button>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <view>
+        <view class="section-title">账单明细</view>
+        <view class="section-meta">记录得越完整，结算越清楚。</view>
+      </view>
+      <button class="ghost-btn" bindtap="gotoSettlement">查看结算</button>
+    </view>
+    <view class="list">
+      <view class="list-item" wx:for="{{travel.expenses}}" wx:key="id">
+        <view class="list-main">
+          <view class="title-line">
+            <text class="title">{{item.title}}</text>
+            <text class="amount">{{item.amountDisplay}}</text>
+          </view>
+          <view class="subtext">{{item.category}} · 付款人：{{item.payerName}}</view>
+          <view class="subtext">{{item.note || '无备注'}}</view>
+        </view>
+      </view>
+      <view wx:if="{{!travel.expenses.length}}" class="subtext">还没有花销，先记一笔吧。</view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <view>
+        <view class="section-title">当前结算</view>
+        <view class="section-meta">正数表示应收，负数表示应付。</view>
+      </view>
+    </view>
+    <view class="list">
+      <view class="list-item" wx:for="{{travel.summary.balances}}" wx:key="memberId">
+        <view class="list-main">
+          <view class="title-line">
+            <text class="title">{{item.name}}</text>
+            <text class="amount {{item.netClass}}">{{item.netDisplay}}</text>
+          </view>
+          <view class="subtext">已垫付 {{item.paidDisplay}} · 应承担 {{item.owedDisplay}}</view>
+        </view>
+      </view>
+    </view>
+    <view class="field">
+      <button class="secondary-btn" bindtap="finishTravel">标记已结清</button>
+    </view>
+  </view>
+</view>

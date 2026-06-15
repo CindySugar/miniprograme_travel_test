@@ -1,0 +1,152 @@
+<navigation-bar title="创建猫猫组队" back="{{true}}" color="#2b343d" background="transparent"></navigation-bar>
+<view class="create-page">
+  <scroll-view class="create-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="hero-panel">
+      <view class="hero-copy">
+        <view class="hero-badge">新的出游账本</view>
+        <view class="hero-title">给这次组队取个名字</view>
+        <view class="hero-subtitle">一起出去玩，也要软软地算清。</view>
+      </view>
+      <image class="hero-image" src="/assets/travel-cat.png" mode="aspectFit"></image>
+    </view>
+
+    <view class="tabs">
+      <view
+        wx:for="{{tabs}}"
+        wx:key="key"
+        class="tab {{activeTab === item.key ? 'tab-active' : ''}}"
+        bindtap="switchTab"
+        data-tab="{{item.key}}"
+      >{{item.label}}</view>
+    </view>
+
+    <view wx:if="{{activeTab === 'team'}}" class="tab-panel">
+      <view class="form-card title-card">
+        <view class="field">
+          <text class="label">组队标题</text>
+          <input class="input" placeholder="比如海边晒太阳小分队" value="{{form.title}}" bindinput="onInput" data-field="title" />
+        </view>
+      </view>
+
+      <view class="form-card">
+        <view class="section-head">
+          <view>
+            <view class="section-title">队伍名单</view>
+            <view class="section-desc">先确认管理员，同行猫猫可继续添加</view>
+          </view>
+          <view class="head-tags">
+            <text class="tag">{{members.length}}只猫猫</text>
+            <text class="tag tag-green">{{currentUser.openid ? '已登录' : '未登录'}}</text>
+          </view>
+        </view>
+
+        <view class="owner-row">
+          <view class="avatar-wrap">
+            <view class="avatar-dot">{{ownerInitial}}</view>
+            <button class="avatar-btn">送头像</button>
+          </view>
+          <view class="owner-main">
+            <text class="label">管理员昵称</text>
+            <input class="input" placeholder="使用微信昵称" value="{{form.ownerName}}" bindinput="onInput" data-field="ownerName" />
+          </view>
+        </view>
+
+        <view class="member-list">
+          <view wx:for="{{members}}" wx:key="id" class="member-item">
+            <view class="member-avatar">{{item.initial}}</view>
+            <view class="member-name">{{item.name}}</view>
+            <view wx:if="{{item.isOwner}}" class="owner-tag">管理员</view>
+          </view>
+        </view>
+
+        <view class="add-member">
+          <input class="input add-input" placeholder="输入同行猫猫昵称" value="{{newMemberName}}" bindinput="onMemberInput" />
+          <button class="add-btn" bindtap="addPreviewMember">添加</button>
+        </view>
+        <view class="helper-text">建议先把这次同行猫猫都加进名单，记账时就能直接选择分摊人。</view>
+      </view>
+
+      <view class="form-card family-card">
+        <view>
+          <view class="section-title">猫猫家庭</view>
+          <view class="section-desc">结算时按家庭合并转账</view>
+        </view>
+        <view class="family-preview">
+          <view class="family-line"></view>
+          <view class="family-line short"></view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:elif="{{activeTab === 'detail'}}" class="tab-panel">
+      <view class="form-card">
+        <view class="section-head">
+          <view>
+            <view class="section-title">账本详情</view>
+            <view class="section-desc">这些都不是创建必填项，可稍后在设置里修改。</view>
+          </view>
+        </view>
+
+        <view class="field">
+          <text class="label">活动日期</text>
+          <picker mode="date" value="{{form.startDate}}" bindchange="onInput" data-field="startDate">
+            <view class="picker-field">{{displayStartDate || '6月15日'}}</view>
+          </picker>
+        </view>
+
+        <view class="field">
+          <text class="label">地点/备注</text>
+          <textarea class="textarea" placeholder="比如周末去海边，顺路吃下午茶" value="{{form.destination}}" bindinput="onInput" data-field="destination"></textarea>
+        </view>
+      </view>
+    </view>
+
+    <view wx:else class="tab-panel">
+      <view class="form-card">
+        <view class="section-head">
+          <view class="section-title">账务规则</view>
+          <view class="section-meta">创建后可修改</view>
+        </view>
+
+        <view class="field">
+          <text class="label">每只猫猫预收金额</text>
+          <input class="input" type="digit" placeholder="比如 1000" value="{{form.advanceAmount}}" bindinput="onInput" data-field="advanceAmount" />
+          <view class="helper-list">
+            <view>默认由管理员统一收取和保管</view>
+            <view>结算时会计入每只猫猫的已付款，多退少补</view>
+            <view>如果中途统一追加预收款，可直接改为累计金额</view>
+          </view>
+        </view>
+
+        <view class="field">
+          <text class="label">猫猫基金</text>
+          <input class="input" placeholder="如打牌充公、共同活动基金" value="{{form.catFund}}" bindinput="onInput" data-field="catFund" />
+          <view class="helper-list">
+            <view>默认由管理员保管</view>
+            <view>结算时会公平抵扣大家的分摊金额</view>
+            <view>会合并进最终转账建议</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="form-card permission-card">
+        <view class="section-head">
+          <view>
+            <view class="section-title">协作权限</view>
+            <view class="section-desc">默认开启，成员也能调整猫猫家庭</view>
+          </view>
+          <view class="section-meta">创建后可修改</view>
+        </view>
+        <view class="switch-row">
+          <text>允许普通成员管理猫猫家庭</text>
+          <switch checked="{{allowMemberFamilyEdit}}" color="#2f3b45" bindchange="togglePermission" />
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="bottom-bar">
+    <button class="create-submit" bindtap="createTravel">建好队伍，邀请同行</button>
+    <view class="bottom-note">创建后先发给同行猫猫，详情和权限可先跳过。</view>
+  </view>
+</view>
