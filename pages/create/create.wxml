@@ -51,7 +51,7 @@
         <view class="owner-row">
           <view class="avatar-wrap">
             <view class="avatar-dot">{{ownerInitial}}</view>
-            <button class="avatar-btn">送头像</button>
+            <button class="avatar-btn">选头像</button>
           </view>
           <view class="owner-main">
             <text class="label">管理员昵称</text>

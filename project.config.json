@@ -3,7 +3,16 @@
   "compileType": "miniprogram",
   "libVersion": "trial",
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      {
+        "value": "/minitest",
+        "type": "folder"
+      },
+      {
+        "type": "folder",
+        "value": "minitest/"
+      }
+    ],
     "include": []
   },
   "setting": {
@@ -37,5 +46,6 @@
     "tabIndent": "auto",
     "tabSize": 2
   },
-  "simulatorPluginLibVersion": {}
+  "simulatorPluginLibVersion": {},
+  "testRoot": "minitest/"
 }
