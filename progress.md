@@ -15,3 +15,6 @@
 - Ran syntax checks with the bundled Node runtime for `pages/create/create.js`, `utils/travel-store.js`, and `pages/index/index.js`.
 - Confirmed `codegraph status` is up to date after edits.
 - Attempted WeChat DevTools verification through Playwright and CLI. Direct preview returned `PROXY_ERROR: invalid ua token`; CLI preview prompted for IDE service enablement and then failed with `wait IDE port timeout`; installing `computer-use@openai-bundled` succeeded but did not expose callable desktop tools in the current tool list.
+- Started a follow-up UI pass from four supplied screenshots for the create page tabs. Key differences from the initial implementation: denser hero/tabs, stronger typography, dashed dividers/placeholders, advanced tab needs a second enabled permission and a third disabled avatar-upload switch.
+- Tuned the create page against the four screenshots: switched the tabs to explicit handlers, tightened the hero/tab/card spacing, matched the screenshot copy hierarchy more closely, added the third advanced permission row, and kept the bottom CTA fixed.
+- Verified the create page in WeChat DevTools by temporarily rendering each tab state as the default page, then restoring the normal `组队` default; Playwright pageframe access remained blocked by `PROXY_ERROR: invalid ua token`.

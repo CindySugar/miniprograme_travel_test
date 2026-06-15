@@ -1,12 +1,6 @@
 const store = require('../../utils/travel-store.js')
 const { formatDate, todayISO } = require('../../utils/util.js')
 
-const tabs = [
-  { key: 'team', label: '组队' },
-  { key: 'detail', label: '详情' },
-  { key: 'advanced', label: '高级' },
-]
-
 const decorateMember = (member) => ({
   ...member,
   initial: (member.name || '猫').slice(0, 1),
@@ -16,9 +10,12 @@ Page({
   data: {
     activeTab: 'team',
     currentUser: store.getCurrentUser(),
-    tabs,
     newMemberName: '',
-    allowMemberFamilyEdit: true,
+    permissions: {
+      allowMemberFamilyEdit: true,
+      allowInvitedIdentity: true,
+      requireAvatar: false,
+    },
     form: {
       title: '',
       destination: '',
@@ -33,22 +30,28 @@ Page({
   },
   onShow() {
     const currentUser = store.getCurrentUser()
-    const ownerName = this.data.form.ownerName || currentUser.name || ''
+    const ownerName = this.data.form.ownerName || ''
+    const previewOwnerName = ownerName || '使用微信昵称'
     const startDate = this.data.form.startDate || todayISO()
     this.setData({
       currentUser,
       'form.ownerName': ownerName,
       'form.startDate': startDate,
       displayStartDate: formatDate(startDate),
-      ownerInitial: (ownerName || '猫').slice(0, 1),
+      ownerInitial: (ownerName || '管').slice(0, 1),
       members: this.data.members.length
         ? this.data.members
-        : [decorateMember({ id: 'owner_preview', name: ownerName || '使用微信昵称', isOwner: true })],
+        : [decorateMember({ id: 'owner_preview', name: previewOwnerName, isOwner: true })],
     })
   },
-  switchTab(e) {
-    const { tab } = e.currentTarget.dataset
-    this.setData({ activeTab: tab })
+  showTeamTab() {
+    this.setData({ activeTab: 'team' })
+  },
+  showDetailTab() {
+    this.setData({ activeTab: 'detail' })
+  },
+  showAdvancedTab() {
+    this.setData({ activeTab: 'advanced' })
   },
   onInput(e) {
     const { field } = e.currentTarget.dataset
@@ -90,7 +93,8 @@ Page({
     })
   },
   togglePermission(e) {
-    this.setData({ allowMemberFamilyEdit: e.detail.value })
+    const { field } = e.currentTarget.dataset
+    this.setData({ [`permissions.${field}`]: e.detail.value })
   },
   createTravel() {
     const { title, destination, ownerName, startDate } = this.data.form
