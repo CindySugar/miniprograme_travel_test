@@ -42,7 +42,7 @@
   border-radius: 999rpx;
   background: rgba(255, 255, 255, 0.86);
   color: #66727d;
-  font-size: 15rpx;
+  font-size: 24rpx;
   font-weight: 700;
   line-height: 1;
 }
@@ -50,7 +50,7 @@
 .hero-title {
   margin-top: 22rpx;
   color: #28313a;
-  font-size: 32rpx;
+  font-size: 50rpx;
   font-weight: 900;
   line-height: 1.08;
 }
@@ -58,7 +58,7 @@
 .hero-desc {
   margin-top: 18rpx;
   color: #6c7a86;
-  font-size: 18rpx;
+  font-size: 24rpx;
   font-weight: 700;
   line-height: 1.35;
 }
@@ -78,13 +78,13 @@
 
 .create-entry {
   margin-top: 28rpx;
-  width: 360rpx;
+  width: 400rpx;
   height: 92rpx;
   line-height: 92rpx;
   border-radius: 34rpx;
   background: #2c3640;
   color: #ffffff;
-  font-size: 20rpx;
+  font-size: 30rpx;
   font-weight: 800;
   white-space: nowrap;
   box-shadow: 0 14rpx 30rpx rgba(36, 46, 55, 0.18);
@@ -93,7 +93,7 @@
 .entry-hint {
   margin-top: 18rpx;
   color: #7b8791;
-  font-size: 16rpx;
+  font-size: 24rpx;
   font-weight: 700;
   text-align: center;
 }
@@ -115,14 +115,14 @@
 .trip-header-right {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: 22rpx;
   flex: none;
   white-space: nowrap;
 }
 
 .trip-header-meta {
   color: #6d7a86;
-  font-size: 16rpx;
+  font-size: 24rpx;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
@@ -133,7 +133,7 @@
   border-radius: 24rpx;
   background: #dff0ff;
   color: #2f71ad;
-  font-size: 16rpx;
+  font-size: 22rpx;
   font-weight: 800;
   line-height: 1;
   white-space: nowrap;
@@ -157,7 +157,7 @@
 
 .trip-card-kicker {
   color: #937641;
-  font-size: 16rpx;
+  font-size: 24rpx;
   font-weight: 800;
   letter-spacing: 0;
 }
@@ -165,14 +165,14 @@
 .trip-card-title {
   margin-top: 10rpx;
   color: #28313a;
-  font-size: 32rpx;
+  font-size: 40rpx;
   font-weight: 900;
   line-height: 1.12;
 }
 
 .trip-actions {
   display: flex;
-  gap: 12rpx;
+  gap: 20rpx;
   flex: none;
   white-space: nowrap;
 }
@@ -182,7 +182,7 @@
   padding: 0 20rpx;
   border-radius: 999rpx;
   line-height: 52rpx;
-  font-size: 16rpx;
+  font-size: 24rpx;
   font-weight: 800;
   white-space: nowrap;
 }
@@ -209,7 +209,7 @@
   border-radius: 999rpx;
   background: rgba(255, 255, 255, 0.94);
   color: #404c56;
-  font-size: 16rpx;
+  font-size: 20rpx;
   font-weight: 800;
 }
 
@@ -271,7 +271,7 @@
 
 .updated-at {
   color: #8a97a3;
-  font-size: 15rpx;
+  font-size: 24rpx;
   font-weight: 800;
 }
 
