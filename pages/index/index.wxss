@@ -20,7 +20,7 @@
 .hero-card {
   display: flex;
   justify-content: space-between;
-  gap: 18rpx;
+  gap: 14rpx;
   min-height: 314rpx;
   padding: 36rpx 28rpx 24rpx;
   border-radius: 48rpx;
@@ -42,7 +42,7 @@
   border-radius: 999rpx;
   background: rgba(255, 255, 255, 0.86);
   color: #66727d;
-  font-size: 26rpx;
+  font-size: 15rpx;
   font-weight: 700;
   line-height: 1;
 }
@@ -50,21 +50,21 @@
 .hero-title {
   margin-top: 22rpx;
   color: #28313a;
-  font-size: 58rpx;
+  font-size: 32rpx;
   font-weight: 900;
-  line-height: 1.15;
+  line-height: 1.08;
 }
 
 .hero-desc {
   margin-top: 18rpx;
   color: #6c7a86;
-  font-size: 32rpx;
+  font-size: 18rpx;
   font-weight: 700;
-  line-height: 1.45;
+  line-height: 1.35;
 }
 
 .hero-illustration {
-  width: 240rpx;
+  width: 182rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,8 +72,8 @@
 }
 
 .hero-image {
-  width: 236rpx;
-  height: 236rpx;
+  width: 178rpx;
+  height: 178rpx;
 }
 
 .create-entry {
@@ -84,15 +84,16 @@
   border-radius: 34rpx;
   background: #2c3640;
   color: #ffffff;
-  font-size: 36rpx;
+  font-size: 20rpx;
   font-weight: 800;
+  white-space: nowrap;
   box-shadow: 0 14rpx 30rpx rgba(36, 46, 55, 0.18);
 }
 
 .entry-hint {
   margin-top: 18rpx;
   color: #7b8791;
-  font-size: 28rpx;
+  font-size: 16rpx;
   font-weight: 700;
   text-align: center;
 }
@@ -107,7 +108,7 @@
 
 .trip-header-title {
   color: #28313a;
-  font-size: 42rpx;
+  font-size: 28rpx;
   font-weight: 900;
 }
 
@@ -121,7 +122,7 @@
 
 .trip-header-meta {
   color: #6d7a86;
-  font-size: 25rpx;
+  font-size: 16rpx;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
@@ -132,7 +133,7 @@
   border-radius: 24rpx;
   background: #dff0ff;
   color: #2f71ad;
-  font-size: 25rpx;
+  font-size: 16rpx;
   font-weight: 800;
   line-height: 1;
   white-space: nowrap;
@@ -156,7 +157,7 @@
 
 .trip-card-kicker {
   color: #937641;
-  font-size: 26rpx;
+  font-size: 16rpx;
   font-weight: 800;
   letter-spacing: 0;
 }
@@ -164,9 +165,9 @@
 .trip-card-title {
   margin-top: 10rpx;
   color: #28313a;
-  font-size: 52rpx;
+  font-size: 32rpx;
   font-weight: 900;
-  line-height: 1.15;
+  line-height: 1.12;
 }
 
 .trip-actions {
@@ -177,11 +178,11 @@
 }
 
 .trip-pill {
-  height: 54rpx;
-  padding: 0 22rpx;
+  height: 52rpx;
+  padding: 0 20rpx;
   border-radius: 999rpx;
-  line-height: 54rpx;
-  font-size: 24rpx;
+  line-height: 52rpx;
+  font-size: 16rpx;
   font-weight: 800;
   white-space: nowrap;
 }
@@ -204,11 +205,11 @@
 }
 
 .trip-stat {
-  padding: 16rpx 22rpx;
+  padding: 14rpx 20rpx;
   border-radius: 999rpx;
   background: rgba(255, 255, 255, 0.94);
   color: #404c56;
-  font-size: 26rpx;
+  font-size: 16rpx;
   font-weight: 800;
 }
 
@@ -242,7 +243,7 @@
   align-items: center;
   justify-content: center;
   color: #25313b;
-  font-size: 24rpx;
+  font-size: 20rpx;
   font-weight: 900;
   box-shadow: 0 5rpx 10rpx rgba(37, 43, 49, 0.1);
 }
@@ -270,7 +271,7 @@
 
 .updated-at {
   color: #8a97a3;
-  font-size: 28rpx;
+  font-size: 15rpx;
   font-weight: 800;
 }
 
@@ -281,7 +282,7 @@
 .trip-card-empty-text {
   margin-top: 12rpx;
   color: #6d7a86;
-  font-size: 28rpx;
+  font-size: 18rpx;
 }
 
 .footer-links {
@@ -294,7 +295,7 @@
 
 .footer-link {
   color: #4076b2;
-  font-size: 30rpx;
+  font-size: 16rpx;
   font-weight: 800;
 }
 
