@@ -229,6 +229,9 @@
 }
 
 .avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 132rpx;
   padding-top: 2rpx;
   flex: none;
@@ -250,16 +253,23 @@
 }
 
 .avatar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 86rpx;
+  min-width: 86rpx;
+  max-width: 86rpx;
   height: 36rpx;
-  margin: -4rpx auto 0;
+  margin: 8rpx 0 0;
   padding: 0;
+  box-sizing: border-box;
   border-radius: 999rpx;
   background: #ffe8a8;
   color: #6f5729;
   font-size: 22rpx;
   font-weight: 900;
-  line-height: 36rpx;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .owner-main {
@@ -402,16 +412,27 @@
 }
 
 .create-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0 auto;
   width: 370rpx;
   height: 88rpx;
-  line-height: 88rpx;
+  padding: 0;
+  line-height: 1;
   border-radius: 30rpx;
   background: #28343d;
   color: #fff;
   font-size: 31rpx;
   font-weight: 900;
+  white-space: nowrap;
   box-shadow: 0 16rpx 28rpx rgba(40, 52, 61, 0.2);
+}
+
+.avatar-btn::after,
+.add-btn::after,
+.create-submit::after {
+  border: 0;
 }
 
 .bottom-note {
