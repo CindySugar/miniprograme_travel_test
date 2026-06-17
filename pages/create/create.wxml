@@ -49,13 +49,35 @@
         </view>
 
         <view class="owner-row">
-          <view class="avatar-wrap">
-            <view class="avatar-dot">{{ownerInitial}}</view>
-            <button class="avatar-btn">选头像</button>
-          </view>
+          <button class="avatar-wrap" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+            <view class="avatar-dot">
+              <image wx:if="{{form.ownerAvatarUrl}}" class="avatar-image" src="{{form.ownerAvatarUrl}}" mode="aspectFill"></image>
+              <text wx:else class="avatar-text">{{ownerInitial}}</text>
+            </view>
+            <view class="avatar-btn">选头像</view>
+          </button>
           <view class="owner-main">
             <text class="label">管理员昵称</text>
-            <input class="input" placeholder="使用微信昵称" value="{{form.ownerName}}" bindinput="onInput" data-field="ownerName" />
+            <input
+              wx:if="{{!form.ownerName}}"
+              class="input"
+              type="nickname"
+              placeholder="使用微信昵称"
+              value="{{form.ownerName}}"
+              bindinput="onInput"
+              bindblur="onOwnerNameBlur"
+              data-field="ownerName"
+            />
+            <input
+              wx:else
+              class="input"
+              type="text"
+              placeholder="使用微信昵称"
+              value="{{form.ownerName}}"
+              bindinput="onInput"
+              bindblur="onOwnerNameBlur"
+              data-field="ownerName"
+            />
           </view>
         </view>
 

@@ -20,6 +20,7 @@ Page({
       title: '',
       destination: '',
       ownerName: '',
+      ownerAvatarUrl: '',
       startDate: '',
       advanceAmount: '',
       catFund: '',
@@ -31,17 +32,19 @@ Page({
   onShow() {
     const currentUser = store.getCurrentUser()
     const ownerName = this.data.form.ownerName || ''
+    const ownerAvatarUrl = this.data.form.ownerAvatarUrl || currentUser.avatarUrl || ''
     const previewOwnerName = ownerName || '使用微信昵称'
     const startDate = this.data.form.startDate || todayISO()
     this.setData({
       currentUser,
       'form.ownerName': ownerName,
+      'form.ownerAvatarUrl': ownerAvatarUrl,
       'form.startDate': startDate,
       displayStartDate: formatDate(startDate),
       ownerInitial: (ownerName || '管').slice(0, 1),
       members: this.data.members.length
         ? this.data.members
-        : [decorateMember({ id: 'owner_preview', name: previewOwnerName, isOwner: true })],
+        : [decorateMember({ id: 'owner_preview', name: previewOwnerName, avatarUrl: ownerAvatarUrl, isOwner: true })],
     })
   },
   showTeamTab() {
@@ -55,22 +58,45 @@ Page({
   },
   onInput(e) {
     const { field } = e.currentTarget.dataset
+    const value = e.detail.value || ''
     const nextData = {
-      [`form.${field}`]: e.detail.value,
+      [`form.${field}`]: value,
     }
     if (field === 'ownerName') {
-      nextData.ownerInitial = (e.detail.value || '猫').slice(0, 1)
+      nextData.ownerInitial = (value || '猫').slice(0, 1)
       nextData.members = this.data.members.map((member) => (
-        member.isOwner ? decorateMember({ ...member, name: e.detail.value || '使用微信昵称' }) : member
+        member.isOwner ? decorateMember({ ...member, name: value || '使用微信昵称' }) : member
       ))
     }
     if (field === 'startDate') {
-      nextData.displayStartDate = formatDate(e.detail.value || todayISO())
+      nextData.displayStartDate = formatDate(value || todayISO())
     }
     this.setData(nextData)
   },
+  onOwnerNameBlur(e) {
+    const value = e.detail.value || ''
+    this.setData({
+      'form.ownerName': value,
+      ownerInitial: (value || '猫').slice(0, 1),
+      members: this.data.members.map((member) => (
+        member.isOwner ? decorateMember({ ...member, name: value || '使用微信昵称' }) : member
+      )),
+    })
+  },
   onMemberInput(e) {
     this.setData({ newMemberName: e.detail.value })
+  },
+  onChooseAvatar(e) {
+    const { avatarUrl } = e.detail
+    if (!avatarUrl) {
+      return
+    }
+    this.setData({
+      'form.ownerAvatarUrl': avatarUrl,
+      members: this.data.members.map((member) => (
+        member.isOwner ? decorateMember({ ...member, avatarUrl }) : member
+      )),
+    })
   },
   addPreviewMember() {
     const name = (this.data.newMemberName || '').trim()
@@ -97,7 +123,7 @@ Page({
     this.setData({ [`permissions.${field}`]: e.detail.value })
   },
   createTravel() {
-    const { title, destination, ownerName, startDate } = this.data.form
+    const { title, destination, ownerName, ownerAvatarUrl, startDate } = this.data.form
     if (!title.trim()) {
       wx.showToast({ title: '请输入组队名称', icon: 'none' })
       return
@@ -106,6 +132,7 @@ Page({
       title,
       destination,
       ownerName,
+      ownerAvatarUrl,
       startDate,
       members: this.data.members
         .filter((member) => !member.isOwner)

@@ -120,7 +120,7 @@ const createTravel = (payload) => {
       id: createId('member'),
       openid: currentUser.openid,
       name: ownerName,
-      avatarUrl: currentUser.avatarUrl || '',
+      avatarUrl: payload.ownerAvatarUrl || currentUser.avatarUrl || '',
       isOwner: true,
     },
   ]

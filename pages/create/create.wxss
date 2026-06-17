@@ -232,24 +232,50 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 132rpx;
+  justify-content: flex-start;
+  width: 96rpx;
+  min-width: 96rpx;
+  max-width: 96rpx;
+  margin: 0;
+  padding: 2rpx 0 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-sizing: border-box;
   padding-top: 2rpx;
   flex: none;
 }
 
+.avatar-wrap::after {
+  border: 0;
+}
+
 .avatar-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 86rpx;
   height: 86rpx;
   margin: 0 auto;
   border: 5rpx solid #28343d;
   border-radius: 26rpx;
+  overflow: hidden;
   background: #fff0bd;
   color: #28343d;
-  font-size: 36rpx;
-  font-weight: 900;
-  line-height: 86rpx;
   text-align: center;
   box-shadow: none;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.avatar-text {
+  font-size: 36rpx;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .avatar-btn {
