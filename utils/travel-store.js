@@ -1,6 +1,6 @@
 const { formatDate, formatMoney, roundMoney, todayISO } = require('./util.js')
 
-const STORAGE_KEY = 'travel_aa_state_v1'
+const STORAGE_KEY = 'travel_aa_state_v2'
 
 const demoState = {
   currentUser: {
@@ -10,47 +10,106 @@ const demoState = {
   },
   travels: [
     {
-      id: 'travel_demo_hangzhou',
-      title: '杭州周末游',
-      destination: '杭州',
+      id: 'travel_demo_test4',
+      title: '测试4',
+      destination: '',
       currency: 'CNY',
-      startDate: todayISO(),
+      startDate: '2026-06-17',
       endDate: '',
       status: '进行中',
-      inviteCode: 'HK1234',
-      createdAt: new Date().toISOString(),
+      inviteCode: 'TEST04',
+      createdAt: '2026-06-17T10:00:00.000Z',
+      updatedAt: '2026-06-17',
       members: [
-        { id: 'member_me', openid: 'demo-openid-local', name: '你', avatarUrl: '', isOwner: true },
-        { id: 'member_lu', openid: 'demo-lu', name: '小路', avatarUrl: '', isOwner: false },
-        { id: 'member_qi', openid: 'demo-qi', name: '琪琪', avatarUrl: '', isOwner: false },
+        { id: 'member_test4_owner', openid: 'demo-openid-local', name: '你', avatarUrl: '', isOwner: true },
+        { id: 'member_test4_rou', openid: 'demo-rou', name: '柔', avatarUrl: '', isOwner: false },
+        { id: 'member_test4_miao', openid: 'demo-miao', name: '喵', avatarUrl: '', isOwner: false },
+      ],
+      expenses: [],
+    },
+    {
+      id: 'travel_demo_test3',
+      title: '测试3',
+      destination: '',
+      currency: 'CNY',
+      startDate: '2026-06-17',
+      endDate: '',
+      status: '进行中',
+      inviteCode: 'TEST03',
+      createdAt: '2026-06-17T09:00:00.000Z',
+      updatedAt: '2026-06-17',
+      members: [
+        { id: 'member_test3_owner', openid: 'demo-openid-local', name: '你', avatarUrl: '', isOwner: true },
+        { id: 'member_test3_rong', openid: 'demo-rong', name: '融', avatarUrl: '', isOwner: false },
+        { id: 'member_test3_ne', openid: 'demo-ne', name: '呢', avatarUrl: '', isOwner: false },
+      ],
+      expenses: [],
+    },
+    {
+      id: 'travel_demo_test2',
+      title: '测试2',
+      destination: '',
+      currency: 'CNY',
+      startDate: '2026-06-17',
+      endDate: '',
+      status: '进行中',
+      inviteCode: 'TEST02',
+      createdAt: '2026-06-17T08:00:00.000Z',
+      updatedAt: '2026-06-17',
+      members: [
+        { id: 'member_test2_owner', openid: 'demo-openid-local', name: '你', avatarUrl: '', isOwner: true },
+        { id: 'member_test2_fang', openid: 'demo-fang', name: '方', avatarUrl: '', isOwner: false },
+        { id: 'member_test2_gai', openid: 'demo-gai', name: '改', avatarUrl: '', isOwner: false },
+        { id: 'member_test2_he', openid: 'demo-he', name: '呵', avatarUrl: '', isOwner: false },
+      ],
+      expenses: [],
+    },
+    {
+      id: 'travel_demo_test1',
+      title: '测试',
+      destination: '',
+      currency: 'CNY',
+      startDate: '2026-06-15',
+      endDate: '',
+      status: '进行中',
+      inviteCode: 'TEST01',
+      createdAt: '2026-06-15T08:00:00.000Z',
+      updatedAt: '2026-06-16',
+      members: [
+        { id: 'member_test1_owner', openid: 'demo-openid-local', name: '你', avatarUrl: '', isOwner: true },
+        { id: 'member_test1_lao1', openid: 'demo-lao1', name: '老', avatarUrl: '', isOwner: false },
+        { id: 'member_test1_lao2', openid: 'demo-lao2', name: '老', avatarUrl: '', isOwner: false },
+        { id: 'member_test1_lao3', openid: 'demo-lao3', name: '老', avatarUrl: '', isOwner: false },
       ],
       expenses: [
         {
-          id: 'expense_1',
-          title: '机场接机',
-          category: '交通',
-          amount: 128,
-          payerId: 'member_lu',
-          note: '高峰打车',
-          paidAt: new Date().toISOString(),
+          id: 'expense_test1_hotel',
+          title: '住宿',
+          category: '住宿',
+          amount: 1200,
+          payerId: 'member_test1_owner',
+          note: '',
+          paidAt: '2026-06-15T12:00:00.000Z',
           shareWeights: [
-            { memberId: 'member_me', weight: 1 },
-            { memberId: 'member_lu', weight: 1 },
-            { memberId: 'member_qi', weight: 1 },
+            { memberId: 'member_test1_owner', weight: 1 },
+            { memberId: 'member_test1_lao1', weight: 1 },
+            { memberId: 'member_test1_lao2', weight: 1 },
+            { memberId: 'member_test1_lao3', weight: 1 },
           ],
         },
         {
-          id: 'expense_2',
-          title: '晚餐',
+          id: 'expense_test1_food',
+          title: '聚餐',
           category: '餐饮',
-          amount: 246,
-          payerId: 'member_me',
-          note: '四人套餐',
-          paidAt: new Date().toISOString(),
+          amount: 476,
+          payerId: 'member_test1_lao1',
+          note: '',
+          paidAt: '2026-06-15T19:00:00.000Z',
           shareWeights: [
-            { memberId: 'member_me', weight: 1 },
-            { memberId: 'member_lu', weight: 1 },
-            { memberId: 'member_qi', weight: 1 },
+            { memberId: 'member_test1_owner', weight: 1 },
+            { memberId: 'member_test1_lao1', weight: 1 },
+            { memberId: 'member_test1_lao2', weight: 1 },
+            { memberId: 'member_test1_lao3', weight: 1 },
           ],
         },
       ],
@@ -183,6 +242,26 @@ const addMember = (travelId, payload) => {
     avatarUrl: payload.avatarUrl || '',
     isOwner: false,
   })
+  saveState(state)
+  return enrichTravel(travel)
+}
+
+const clearMemberClaim = (travelId, memberId) => {
+  const state = currentState()
+  const travel = state.travels.find((item) => item.id === travelId)
+  if (!travel) {
+    throw new Error('Travel not found')
+  }
+
+  const member = travel.members.find((item) => item.id === memberId)
+  if (!member) {
+    throw new Error('Member not found')
+  }
+  if (member.isOwner) {
+    throw new Error('管理员不能清除认领')
+  }
+
+  member.openid = ''
   saveState(state)
   return enrichTravel(travel)
 }
@@ -345,6 +424,8 @@ const buildTransfers = (balances) => {
   return transfers
 }
 
+const memberBadgeClasses = ['member-badge-green', 'member-badge-coral', 'member-badge-blue', 'member-badge-mint']
+
 const enrichTravel = (travel) => {
   const summary = decorateSummary(travel, computeTravelSummary(travel))
   const expenses = travel.expenses.map((expense) => ({
@@ -363,6 +444,12 @@ const enrichTravel = (travel) => {
     expenseCount: travel.expenses.length,
     memberCount: travel.members.length,
     memberNames: travel.members.map((member) => member.name),
+    visibleMembers: travel.members.slice(0, 4).map((member, index) => ({
+      ...member,
+      badgeClass: memberBadgeClasses[index] || memberBadgeClasses[0],
+      initial: index === 0 ? '' : (member.name || '猫').slice(0, 1),
+    })),
+    updatedAtDisplay: travel.updatedAt || (travel.createdAt || '').slice(0, 10),
     displayDate: travel.endDate || formatDate(travel.startDate || travel.createdAt),
   }
 }
@@ -382,6 +469,7 @@ const markTravelCompleted = (travelId) => {
 module.exports = {
   addExpense,
   addMember,
+  clearMemberClaim,
   createTravel,
   currentState,
   ensureState,

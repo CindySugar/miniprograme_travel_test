@@ -363,12 +363,29 @@ page {
 }
 
 .action-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 0;
+  flex: 0 0 auto;
+  margin: 0;
   padding: 14rpx 22rpx;
   border-radius: 999rpx;
+  box-sizing: border-box;
   font-size: 22rpx;
   font-weight: 900;
   line-height: 1;
   white-space: nowrap;
+}
+
+.action-pill-text {
+  display: inline-block;
+  line-height: 1;
+}
+
+.action-pill::after {
+  border: 0;
 }
 
 .action-pill-outline {
@@ -380,6 +397,34 @@ page {
 .action-pill-soft {
   background: #dff0ff;
   color: #3973ae;
+}
+
+.member-manage-btn {
+  width: 112rpx;
+  min-width: 112rpx;
+  max-width: 112rpx;
+  height: 50rpx;
+  padding: 0;
+  background: transparent;
+}
+
+.member-manage-btn::after {
+  border: 0;
+}
+
+.member-manage-btn .action-pill-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112rpx;
+  height: 50rpx;
+  padding: 0;
+  border-radius: 999rpx;
+  background: #dff0ff;
+  color: #3973ae;
+  font-size: 22rpx;
+  font-weight: 900;
+  white-space: nowrap;
 }
 
 .member-manager {

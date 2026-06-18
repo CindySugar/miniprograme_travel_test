@@ -50,7 +50,9 @@
           </view>
           <view class="member-actions">
             <view class="action-pill action-pill-outline" bindtap="inviteMembers">邀请同行</view>
-            <view class="action-pill action-pill-soft" bindtap="toggleMemberManager">管理</view>
+            <button class="action-pill action-pill-soft member-manage-btn" bindtap="gotoMemberManage">
+              <text class="action-pill-text">管理</text>
+            </button>
           </view>
         </view>
       </view>

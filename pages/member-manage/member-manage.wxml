@@ -1,0 +1,122 @@
+<navigation-bar title="成员管理" back="{{true}}" color="#26313a" background="transparent"></navigation-bar>
+<view class="manage-page" wx:if="{{travel}}">
+  <scroll-view class="manage-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="intro-card">
+      管理员可以维护预置成员、清除错误认领、禁用记账权限或移出组队，也可以修改自己的昵称和头像。
+    </view>
+
+    <view class="section-head">
+      <view class="section-title">邀请设置</view>
+      <view class="section-meta">{{travel.inviteStatusText}}</view>
+    </view>
+    <view class="setting-card">
+      <view class="setting-copy">
+        <view class="setting-title">允许新成员加入</view>
+        <view class="setting-desc">关闭后，未加入的猫猫不能再通过分享卡片加入；已加入成员不受影响。</view>
+      </view>
+      <button class="light-button" bindtap="toggleInvite">{{travel.inviteButtonText}}</button>
+    </view>
+
+    <view class="section-head family-head">
+      <view class="section-title">猫猫家庭</view>
+      <view class="section-meta">最终按家庭转账</view>
+    </view>
+    <view class="family-card">
+      <view class="field-label">选择同一个家庭的猫猫</view>
+      <view class="choice-row">
+        <block wx:for="{{travel.familyCandidates}}" wx:key="id">
+          <view
+            class="choice-pill {{item.selectedForFamily ? 'choice-pill-active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="toggleFamilyMember"
+          >{{item.name}}</view>
+        </block>
+      </view>
+
+      <view class="field-label owner-label">选择家主</view>
+      <view class="owner-select-box" wx:if="{{!selectedFamilyMemberIds.length}}">先选择至少两只猫猫。</view>
+      <view wx:else class="choice-row">
+        <block wx:for="{{travel.selectedFamilyMembers}}" wx:key="id">
+          <view
+            class="choice-pill {{item.selectedAsOwner ? 'choice-pill-active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="chooseFamilyOwner"
+          >{{item.name}}</view>
+        </block>
+      </view>
+
+      <button
+        class="family-submit {{travel.canCreateFamily ? 'family-submit-active' : ''}}"
+        bindtap="createFamily"
+      >组成家庭</button>
+
+      <block wx:for="{{families}}" wx:key="id">
+        <view class="family-item">
+          <view class="family-avatars">
+            <block wx:for="{{item.memberIds}}" wx:key="*this" wx:for-item="memberId">
+              <view class="mini-avatar">猫</view>
+            </block>
+          </view>
+          <view class="family-copy">
+            <view class="family-name">{{item.name}}</view>
+            <view class="family-desc">{{item.membersText}} · 家主 {{item.ownerName}}</view>
+          </view>
+          <view class="remove-pill" data-id="{{item.id}}" bindtap="removeFamily">移除</view>
+        </view>
+      </block>
+    </view>
+
+    <view class="section-head add-head">
+      <view class="section-title">添加成员</view>
+      <view class="section-meta">{{travel.pendingAddText}}</view>
+    </view>
+    <view class="add-card">
+      <input class="add-input" placeholder="输入猫猫昵称" value="{{newMemberName}}" bindinput="onMemberInput" />
+      <button class="add-button" bindtap="addMember">添加</button>
+    </view>
+
+    <view class="section-head list-head">
+      <view class="section-title">成员列表</view>
+      <view class="section-meta">{{travel.memberCountText}}</view>
+    </view>
+
+    <block wx:for="{{travel.membersDecorated}}" wx:key="id">
+      <view class="member-card">
+        <view class="member-top">
+          <view class="avatar {{item.toneClass}}">
+            <text wx:if="{{!item.avatarUrl}}">{{item.initial}}</text>
+            <image wx:else class="avatar-img" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+            <view wx:if="{{item.isOwner}}" class="avatar-mark">换</view>
+          </view>
+          <view class="member-main">
+            <view class="name-row">
+              <input class="name-input" value="{{item.draftName}}" data-id="{{item.id}}" bindinput="onDraftNameInput" />
+              <view class="role-pill">{{item.isOwner ? '管理员' : item.claimText}}</view>
+            </view>
+            <view class="status-row">
+              <text>{{item.billCount}} 笔账单 · {{item.bookkeepingText}}</text>
+              <text class="bind-text">{{item.bindingText}}</text>
+            </view>
+            <view class="tag-row">
+              <block wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">
+                <text class="tag {{tag === '我自己' ? 'tag-green' : tag === '创建者' ? 'tag-blue' : tag === '家主' ? 'tag-yellow' : 'tag-red'}}">{{tag}}</text>
+              </block>
+            </view>
+          </view>
+        </view>
+        <view class="operation-row" wx:if="{{!item.isOwner}}">
+          <button class="operation-button" data-id="{{item.id}}" bindtap="saveMemberName">保存昵称</button>
+          <button class="operation-button" data-id="{{item.id}}" bindtap="toggleBookkeeping">{{item.disabledBookkeeping ? '恢复记账' : '禁用记账'}}</button>
+          <button
+            class="operation-button operation-disabled {{item.isClaimed ? '' : 'operation-muted'}}"
+            data-id="{{item.id}}"
+            bindtap="clearClaim"
+            disabled="{{!item.isClaimed}}"
+          >清除认领</button>
+          <button class="operation-button operation-danger" data-id="{{item.id}}" bindtap="removeMember">移出组队</button>
+        </view>
+      </view>
+    </block>
+    <view class="scroll-end-spacer"></view>
+  </scroll-view>
+</view>

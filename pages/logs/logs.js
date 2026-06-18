@@ -172,6 +172,15 @@ Page({
       },
     })
   },
+  gotoMemberManage() {
+    const { travel } = this.data
+    if (!travel) {
+      return
+    }
+    wx.navigateTo({
+      url: `/pages/member-manage/member-manage?travelId=${travel.id}`,
+    })
+  },
   showExpenseEditHint() {
     wx.showToast({ title: '编辑账单入口稍后补上', icon: 'none' })
   },

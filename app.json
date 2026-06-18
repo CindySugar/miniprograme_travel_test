@@ -3,6 +3,7 @@
     "pages/index/index",
     "pages/create/create",
     "pages/logs/logs",
+    "pages/member-manage/member-manage",
     "pages/expense/expense",
     "pages/settlement/settlement"
   ],

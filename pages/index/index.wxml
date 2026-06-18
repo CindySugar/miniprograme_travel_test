@@ -18,40 +18,50 @@
     <view class="trip-header">
       <view class="trip-header-title">我的猫猫组队</view>
       <view class="trip-header-right">
-        <text class="trip-header-meta">最近 1 个</text>
+        <text class="trip-header-meta">最近 {{travels.length}} 个</text>
         <view class="trip-link">查看全部</view>
       </view>
     </view>
 
-    <view class="trip-card" wx:if="{{travels.length}}" bindtap="openTravel" data-id="{{travels[0].id}}">
-      <view class="trip-card-top">
-        <view>
-          <view class="trip-card-kicker">猫猫组队  {{travels[0].displayDate}}</view>
-          <view class="trip-card-title">{{travels[0].title}}</view>
+    <block wx:if="{{travels.length}}">
+      <view
+        class="trip-card"
+        wx:for="{{travels}}"
+        wx:key="id"
+        bindtap="openTravel"
+        data-id="{{item.id}}"
+      >
+        <view class="trip-card-top">
+          <view>
+            <view class="trip-card-kicker">猫猫组队  {{item.displayDate}}</view>
+            <view class="trip-card-title">{{item.title}}</view>
+          </view>
+          <view class="trip-actions">
+            <view class="trip-pill trip-pill-muted">归档</view>
+            <view class="trip-pill trip-pill-warn">删除</view>
+          </view>
         </view>
-        <view class="trip-actions">
-          <view class="trip-pill trip-pill-muted">归档</view>
-          <view class="trip-pill trip-pill-warn">删除</view>
-        </view>
-      </view>
 
-      <view class="trip-stats">
-        <view class="trip-stat">总金额：{{travels[0].summary.totalSpentDisplay}}</view>
-        <view class="trip-stat">4 只猫猫</view>
-        <view class="trip-stat">1 笔账单</view>
-        <view class="trip-stat trip-status">进行中</view>
-      </view>
-
-      <view class="trip-card-footer">
-        <view class="member-stack">
-          <view class="member-badge member-badge-green"></view>
-          <view class="member-badge member-badge-coral">老</view>
-          <view class="member-badge member-badge-blue">老</view>
-          <view class="member-badge member-badge-mint">老</view>
+        <view class="trip-stats">
+          <view class="trip-stat">总金额：¥{{item.summary.totalSpentDisplay}}</view>
+          <view class="trip-stat">{{item.memberCount}} 只猫猫</view>
+          <view class="trip-stat">{{item.expenseCount}} 笔账单</view>
+          <view class="trip-stat trip-status">{{item.status}}</view>
         </view>
-        <view class="updated-at">2026-06-15 更新</view>
+
+        <view class="trip-card-footer">
+          <view class="member-stack">
+            <view
+              wx:for="{{item.visibleMembers}}"
+              wx:for-item="member"
+              wx:key="id"
+              class="member-badge {{member.badgeClass}}"
+            >{{member.initial}}</view>
+          </view>
+          <view class="updated-at">{{item.updatedAtDisplay}} 更新</view>
+        </view>
       </view>
-    </view>
+    </block>
 
     <view wx:else class="trip-card trip-card-empty">
       <view class="trip-card-title">还没有旅行</view>
