@@ -102,7 +102,6 @@
           </view>
         </view>
       </block>
-      <view class="scroll-end-spacer"></view>
     </scroll-view>
   </view>
 </template>

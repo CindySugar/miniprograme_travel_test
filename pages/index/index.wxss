@@ -1,16 +1,27 @@
 @import "../../app.wxss";
 
-.home-page {
-  min-height: 100vh;
+.index-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
   background:
     radial-gradient(rgba(255, 214, 214, 0.55) 2.8rpx, transparent 3.2rpx) 0 0 / 86rpx 86rpx,
     linear-gradient(180deg, #fffaf1 0%, #fffdf8 58%, #eef8f5 100%);
-  padding: 30rpx 24rpx 40rpx;
+}
+
+.home-page {
+  flex: 1;
+  min-height: 0;
+  background:
+    radial-gradient(rgba(255, 214, 214, 0.55) 2.8rpx, transparent 3.2rpx) 0 0 / 86rpx 86rpx,
+    linear-gradient(180deg, #fffaf1 0%, #fffdf8 58%, #eef8f5 100%);
+  padding: 30rpx 24rpx calc(40rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
 .home-shell {
-  min-height: calc(100vh - 60rpx);
+  min-height: calc(100vh - 176rpx - 60rpx);
   border-radius: 36rpx;
   background: rgba(255, 250, 243, 0.86);
   padding: 18rpx;

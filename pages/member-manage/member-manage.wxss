@@ -5,7 +5,9 @@ page {
 }
 
 .manage-page {
-  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   background:
     radial-gradient(rgba(255, 214, 214, 0.42) 3rpx, transparent 3.5rpx) 0 0 / 76rpx 76rpx,
     linear-gradient(180deg, #fffaf4 0%, #fffdf8 58%, #eef8f2 100%);
@@ -14,8 +16,9 @@ page {
 }
 
 .manage-scroll {
-  height: calc(100vh - 44rpx);
-  padding-bottom: calc(180rpx + env(safe-area-inset-bottom));
+  flex: 1;
+  min-height: 0;
+  padding-bottom: calc(56rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
@@ -287,11 +290,6 @@ page {
 .member-card {
   padding: 22rpx 22rpx 20rpx;
   margin-bottom: 18rpx;
-}
-
-.scroll-end-spacer {
-  height: 220rpx;
-  flex: none;
 }
 
 .member-top {

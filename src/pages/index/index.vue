@@ -1,7 +1,7 @@
 <template>
-  <view class="page">
+  <view class="index-page">
     <cat-navigation-bar title="旅行AA记账" :back="false" color="#1f2a37" background="transparent" />
-    <view class="home-page">
+    <scroll-view class="home-page" scroll-y enhanced :show-scrollbar="false">
       <view class="home-shell">
         <view class="hero-card">
           <view class="hero-copy">
@@ -69,7 +69,7 @@
           <view class="trip-card-empty-text">点上面的按钮创建第一组旅行。</view>
         </view>
       </view>
-    </view>
+    </scroll-view>
   </view>
 </template>
 
