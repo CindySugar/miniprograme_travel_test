@@ -115,5 +115,5 @@ export default {
 </script>
 
 <style>
-@import "../../../components/navigation-bar/navigation-bar.wxss";
+@import "./cat-navigation-bar.wxss";
 </style>

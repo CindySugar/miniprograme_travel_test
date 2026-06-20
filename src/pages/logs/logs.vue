@@ -305,5 +305,5 @@ export default {
 </script>
 
 <style>
-@import "../../../pages/logs/logs.wxss";
+@import "./logs.wxss";
 </style>

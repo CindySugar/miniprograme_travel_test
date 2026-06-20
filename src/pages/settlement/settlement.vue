@@ -76,5 +76,5 @@ export default {
 </script>
 
 <style>
-@import "../../../pages/settlement/settlement.wxss";
+@import "./settlement.wxss";
 </style>

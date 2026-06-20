@@ -74,19 +74,17 @@
 </template>
 
 <script>
-import { listTravels, getCurrentUser } from '../../utils/travel-store.js'
+import { listTravels } from '../../utils/travel-store.js'
 import NavigationBar from '../../components/cat-navigation-bar/cat-navigation-bar.vue'
 
 export default {
   components: { NavigationBar },
   data() {
     return {
-      currentUser: getCurrentUser(),
       travels: [],
     }
   },
   onShow() {
-    this.currentUser = getCurrentUser()
     this.travels = listTravels()
   },
   methods: {
@@ -101,6 +99,6 @@ export default {
 </script>
 
 <style>
-@import "../../../app.wxss";
-@import "../../../pages/index/index.wxss";
+@import "../../app.wxss";
+@import "./index.wxss";
 </style>
