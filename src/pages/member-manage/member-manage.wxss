@@ -148,10 +148,17 @@ page {
   line-height: 1;
 }
 
-.choice-pill-active {
-  border-color: #77d5af;
-  background: #e8f8f0;
-  color: #16825e;
+.choice-pill-active,
+.choice-pill-selected {
+  border-color: #ff8f82;
+  background: rgba(255, 248, 244, 0.96);
+  color: #e85f50;
+}
+
+.choice-pill-owner-active {
+  border-color: #26313a;
+  background: #ffd85c;
+  color: #26313a;
 }
 
 .owner-label {
