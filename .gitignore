@@ -1,5 +1,9 @@
 .DS_Store
 .codegraph/
+.agent_context/
+.multica/
+dist/
+docs/backend-engineer-role-and-workstyle.md
 project.private.config.json
 backend/db.sqlite3
 backend/**/__pycache__/
