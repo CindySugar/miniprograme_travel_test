@@ -26,15 +26,15 @@
         <view class="field-label">选择同一个家庭的猫猫</view>
         <view class="choice-row">
           <block v-for="item in travel.familyCandidates" :key="item.id">
-            <view class="choice-pill" :class="{ 'choice-pill-active': item.selectedForFamily }" @tap="toggleFamilyMember" :data-id="item.id">{{ item.name }}</view>
+            <view class="choice-pill" :class="{ 'choice-pill-selected': item.selectedForFamily }" @tap="toggleFamilyMember" :data-id="item.id">{{ item.name }}</view>
           </block>
         </view>
 
         <view class="field-label owner-label">选择家主</view>
-        <view class="owner-select-box" v-if="!selectedFamilyMemberIds.length">先选择至少两只猫猫。</view>
+        <view class="owner-select-box" v-if="selectedFamilyMemberIds.length < 2">先选择至少两只猫猫。</view>
         <view v-else class="choice-row">
           <block v-for="item in travel.selectedFamilyMembers" :key="item.id">
-            <view class="choice-pill" :class="{ 'choice-pill-active': item.selectedAsOwner }" @tap="chooseFamilyOwner" :data-id="item.id">{{ item.name }}</view>
+            <view class="choice-pill" :class="{ 'choice-pill-owner-active': item.selectedAsOwner }" @tap="chooseFamilyOwner" :data-id="item.id">{{ item.name }}</view>
           </block>
         </view>
 
@@ -114,12 +114,15 @@ const MEMBER_TONES = ['member-tone-coral', 'member-tone-blue', 'member-tone-mint
 const createFamilyId = () => `family_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`
 const countExpenseForMember = (travel, memberId) => (travel.expenses || []).filter((expense) => expense.payerId === memberId || (expense.shareWeights || []).some((share) => share.memberId === memberId)).length
 
-const decorateMembers = (travel, disabledLookup, draftNames = {}) => {
+const decorateMembers = (travel, disabledLookup, draftNames = {}, familyLookup = {}) => {
   let toneIndex = 0
   return (travel.members || []).map((member) => {
     const isOwner = !!member.isOwner
     const isClaimed = !!member.openid
     const disabledBookkeeping = !!disabledLookup[member.id]
+    const family = familyLookup[member.id] || null
+    const familyName = family?.name || ''
+    const isFamilyOwner = !!family && family.ownerId === member.id
     const toneClass = isOwner ? 'member-tone-owner' : MEMBER_TONES[toneIndex++ % MEMBER_TONES.length]
     return {
       ...member,
@@ -132,14 +135,25 @@ const decorateMembers = (travel, disabledLookup, draftNames = {}) => {
       billCount: countExpenseForMember(travel, member.id),
       bookkeepingText: disabledBookkeeping ? '禁用记账' : isClaimed ? '可记账' : '认领后可记账',
       disabledBookkeeping,
-      tags: [...(isOwner ? ['我自己', '创建者', '管理员'] : []), ...(member.familyName ? [member.familyName] : []), ...(member.isFamilyOwner ? ['家主'] : [])],
+      familyId: family?.id || '',
+      familyName,
+      familyMemberIds: family?.memberIds || [],
+      isFamilyOwner,
+      tags: [...(isOwner ? ['我自己', '创建者', '管理员'] : []), ...(familyName ? [familyName] : []), ...(isFamilyOwner ? ['家主'] : [])],
     }
   })
 }
 
 const buildView = (travel, pageState) => {
   const disabledLookup = pageState.disabledBookkeeping || {}
-  const members = decorateMembers(travel, disabledLookup, pageState.draftNames || {})
+  const families = Array.isArray(pageState.families) ? pageState.families : []
+  const familyLookup = {}
+  families.forEach((family) => {
+    (family.memberIds || []).forEach((memberId) => {
+      familyLookup[memberId] = family
+    })
+  })
+  const members = decorateMembers(travel, disabledLookup, pageState.draftNames || {}, familyLookup)
   const pendingCount = members.filter((member) => !member.isClaimed).length
   const selectedLookup = Object.fromEntries((pageState.selectedFamilyMemberIds || []).map((id) => [id, true]))
   const selectedFamilyMembers = members.filter((member) => selectedLookup[member.id]).map((member) => ({ ...member, selectedAsOwner: pageState.familyOwnerId === member.id }))
@@ -150,7 +164,7 @@ const buildView = (travel, pageState) => {
     pendingAddText: pendingCount ? '未绑定微信，待认领' : '已全部绑定微信',
     inviteStatusText: pageState.allowInvite ? '邀请开启中' : '邀请关闭',
     inviteButtonText: pageState.allowInvite ? '关闭邀请' : '开启邀请',
-    familyCandidates: members.filter((member) => !member.isOwner).map((member) => ({ ...member, selectedForFamily: !!selectedLookup[member.id] })),
+    familyCandidates: members.filter((member) => !member.familyId).map((member) => ({ ...member, selectedForFamily: !!selectedLookup[member.id] })),
     selectedFamilyMembers,
     canCreateFamily: selectedFamilyMembers.length >= 2 && !!pageState.familyOwnerId,
   }
@@ -178,15 +192,23 @@ export default {
     this.refresh()
   },
   methods: {
-    refresh() {
+    refresh(stateOverrides = {}) {
       const travel = getTravel(this.travelId) || null
       if (!travel) return
       this.travelId = travel.id
-      this.travel = buildView(travel, this)
+      this.travel = buildView(travel, {
+        allowInvite: this.allowInvite,
+        selectedFamilyMemberIds: this.selectedFamilyMemberIds,
+        familyOwnerId: this.familyOwnerId,
+        families: this.families,
+        disabledBookkeeping: this.disabledBookkeeping,
+        draftNames: this.draftNames,
+        ...stateOverrides,
+      })
     },
     toggleInvite() {
       this.allowInvite = !this.allowInvite
-      this.refresh()
+      this.refresh({ allowInvite: this.allowInvite })
     },
     onMemberInput(e) {
       this.newMemberName = e.detail.value
@@ -212,15 +234,19 @@ export default {
       if (selected.has(memberId)) selected.delete(memberId)
       else selected.add(memberId)
       const nextSelected = Array.from(selected)
+      const nextFamilyOwnerId = nextSelected.includes(this.familyOwnerId) ? this.familyOwnerId : ''
       this.selectedFamilyMemberIds = nextSelected
-      this.familyOwnerId = nextSelected.includes(this.familyOwnerId) ? this.familyOwnerId : ''
-      this.refresh()
+      this.familyOwnerId = nextFamilyOwnerId
+      this.refresh({
+        selectedFamilyMemberIds: nextSelected,
+        familyOwnerId: nextFamilyOwnerId,
+      })
     },
     chooseFamilyOwner(e) {
       const memberId = e.currentTarget.dataset.id
       if (!this.selectedFamilyMemberIds.includes(memberId)) return
       this.familyOwnerId = memberId
-      this.refresh()
+      this.refresh({ familyOwnerId: memberId })
     },
     createFamily() {
       const { selectedFamilyMemberIds, familyOwnerId, travel } = this
@@ -239,15 +265,21 @@ export default {
         membersText: selectedFamilyMemberIds.map((id) => memberLookup[id]?.name).filter(Boolean).join('、'),
         ownerName: familyOwner?.name || '未指定',
       }
-      this.families = this.families.concat(family)
+      const nextFamilies = this.families.concat(family)
+      this.families = nextFamilies
       this.selectedFamilyMemberIds = []
       this.familyOwnerId = ''
-      this.refresh()
+      this.refresh({
+        families: nextFamilies,
+        selectedFamilyMemberIds: [],
+        familyOwnerId: '',
+      })
     },
     removeFamily(e) {
       const familyId = e.currentTarget.dataset.id
-      this.families = this.families.filter((family) => family.id !== familyId)
-      this.refresh()
+      const nextFamilies = this.families.filter((family) => family.id !== familyId)
+      this.families = nextFamilies
+      this.refresh({ families: nextFamilies })
     },
     onDraftNameInput(e) {
       const { id } = e.currentTarget.dataset
@@ -268,11 +300,12 @@ export default {
     },
     toggleBookkeeping(e) {
       const { id } = e.currentTarget.dataset
-      this.disabledBookkeeping = {
+      const nextDisabledBookkeeping = {
         ...this.disabledBookkeeping,
         [id]: !this.disabledBookkeeping[id],
       }
-      this.refresh()
+      this.disabledBookkeeping = nextDisabledBookkeeping
+      this.refresh({ disabledBookkeeping: nextDisabledBookkeeping })
     },
     clearClaim(e) {
       const { id } = e.currentTarget.dataset
@@ -298,5 +331,5 @@ export default {
 </script>
 
 <style>
-@import "../../../pages/member-manage/member-manage.wxss";
+@import "./member-manage.wxss";
 </style>
