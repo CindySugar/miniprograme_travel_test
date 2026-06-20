@@ -138,5 +138,5 @@ export default {
 </script>
 
 <style>
-@import "../../../pages/expense/expense.wxss";
+@import "./expense.wxss";
 </style>

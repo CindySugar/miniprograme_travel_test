@@ -302,5 +302,5 @@ export default {
 </script>
 
 <style>
-@import "../../../pages/create/create.wxss";
+@import "./create.wxss";
 </style>
