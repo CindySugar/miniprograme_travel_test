@@ -1,8 +1,6 @@
 <template>
   <view class="page" v-if="travel">
-    <cat-navigation-bar title="新增花销" :back="true" color="black" background="#F4F7FB" />
     <view class="hero">
-      <view class="hero-title">新增花销</view>
       <view class="hero-subtitle">{{ travel.title }} · 记一笔新的开销</view>
     </view>
     <view class="section">
@@ -45,10 +43,8 @@
 
 <script>
 import { getTravel, addExpense as storeAddExpense } from '../../utils/travel-store.js'
-import NavigationBar from '../../components/cat-navigation-bar/cat-navigation-bar.vue'
 
 export default {
-  components: { NavigationBar },
   data() {
     return {
       travelId: '',

@@ -21,12 +21,6 @@ button {
   padding: 28rpx;
 }
 
-.hero-title {
-  font-size: 38rpx;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
 .hero-subtitle {
   margin-top: 12rpx;
   color: #607086;

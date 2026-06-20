@@ -58,14 +58,6 @@
   line-height: 1;
 }
 
-.hero-title {
-  margin-top: 22rpx;
-  color: #28313a;
-  font-size: 50rpx;
-  font-weight: 900;
-  line-height: 1.08;
-}
-
 .hero-desc {
   margin-top: 18rpx;
   color: #6c7a86;

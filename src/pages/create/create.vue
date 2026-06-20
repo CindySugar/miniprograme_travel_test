@@ -1,11 +1,9 @@
 <template>
   <view class="create-page">
-    <cat-navigation-bar title="创建猫猫组队" :back="true" color="#2b343d" background="transparent" />
     <scroll-view class="create-scroll" scroll-y enhanced :show-scrollbar="false">
       <view class="hero-panel">
         <view class="hero-copy">
           <view class="hero-badge">新的出游账本</view>
-          <view class="hero-title">给这次组队取个名字</view>
           <view class="hero-subtitle">一起出去玩，也要软软地算清。</view>
         </view>
         <image class="hero-image" src="/static/travel-cat.png" mode="aspectFit"></image>
@@ -172,7 +170,6 @@
 <script>
 import { createTravel as storeCreateTravel, getCurrentUser } from '../../utils/travel-store.js'
 import { formatDate, todayISO } from '../../utils/util.js'
-import NavigationBar from '../../components/cat-navigation-bar/cat-navigation-bar.vue'
 
 const decorateMember = (member) => ({
   ...member,
@@ -180,7 +177,6 @@ const decorateMember = (member) => ({
 })
 
 export default {
-  components: { NavigationBar },
   data() {
     return {
       activeTab: 'team',

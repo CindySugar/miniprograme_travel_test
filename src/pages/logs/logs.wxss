@@ -41,20 +41,6 @@ page {
   min-width: 0;
 }
 
-.hero-title-row {
-  display: flex;
-  align-items: center;
-  gap: 18rpx;
-  flex-wrap: wrap;
-}
-
-.hero-title {
-  color: #26313a;
-  font-size: 48rpx;
-  font-weight: 900;
-  line-height: 1.08;
-}
-
 .status-pill {
   display: inline-flex;
   align-items: center;

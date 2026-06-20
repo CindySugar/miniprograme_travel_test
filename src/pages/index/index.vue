@@ -1,12 +1,10 @@
 <template>
   <view class="index-page">
-    <cat-navigation-bar title="旅行AA记账" :back="false" color="#1f2a37" background="transparent" />
     <scroll-view class="home-page" scroll-y enhanced :show-scrollbar="false">
       <view class="home-shell">
         <view class="hero-card">
           <view class="hero-copy">
             <view class="hero-badge">一起出去玩，也要软软地算清。</view>
-            <view class="hero-title">创建一次猫猫组队</view>
             <view class="hero-desc">邀请同行猫猫加入，大家各自记录垫付账单，最后自动算清。</view>
           </view>
           <view class="hero-illustration">
@@ -75,10 +73,8 @@
 
 <script>
 import { listTravels } from '../../utils/travel-store.js'
-import NavigationBar from '../../components/cat-navigation-bar/cat-navigation-bar.vue'
 
 export default {
-  components: { NavigationBar },
   data() {
     return {
       travels: [],

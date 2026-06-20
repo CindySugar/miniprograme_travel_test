@@ -1,6 +1,5 @@
 <template>
   <view class="manage-page" v-if="travel">
-    <cat-navigation-bar title="成员管理" :back="true" color="#26313a" background="transparent" />
     <scroll-view class="manage-scroll" scroll-y enhanced :show-scrollbar="false">
       <view class="intro-card">
         管理员可以维护预置成员、清除错误认领、禁用记账权限或移出组队，也可以修改自己的昵称和头像。
@@ -108,7 +107,6 @@
 
 <script>
 import { getTravel, addMember as storeAddMember, clearMemberClaim } from '../../utils/travel-store.js'
-import NavigationBar from '../../components/cat-navigation-bar/cat-navigation-bar.vue'
 
 const MEMBER_TONES = ['member-tone-coral', 'member-tone-blue', 'member-tone-mint', 'member-tone-gold']
 const createFamilyId = () => `family_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`
@@ -171,7 +169,6 @@ const buildView = (travel, pageState) => {
 }
 
 export default {
-  components: { NavigationBar },
   data() {
     return {
       travelId: '',

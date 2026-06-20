@@ -1,14 +1,10 @@
 <template>
   <view class="page" v-if="travel">
-    <cat-navigation-bar title="旅行详情" :back="true" color="#26313a" background="transparent" />
     <view class="page-shell">
       <view class="hero-card">
         <view class="hero-top">
           <view class="hero-copy">
-            <view class="hero-title-row">
-              <view class="hero-title">{{ travel.title }}</view>
-              <view class="status-pill" :class="travel.statusToneClass">{{ travel.status }}</view>
-            </view>
+            <view class="status-pill" :class="travel.statusToneClass">{{ travel.status }}</view>
             <view class="hero-date">{{ travel.displayDateLabel }}</view>
           </view>
           <image class="hero-image" src="/static/travel-cat.png" mode="aspectFit"></image>
@@ -145,7 +141,6 @@
 
 <script>
 import { getTravel, addMember as storeAddMember, markTravelCompleted } from '../../utils/travel-store.js'
-import NavigationBar from '../../components/cat-navigation-bar/cat-navigation-bar.vue'
 
 const MEMBER_TONES = ['member-tone-coral', 'member-tone-blue', 'member-tone-mint', 'member-tone-gold']
 
@@ -216,7 +211,6 @@ const buildTravelView = (travel, options = {}) => {
 }
 
 export default {
-  components: { NavigationBar },
   data() {
     return {
       travelId: '',
@@ -239,6 +233,9 @@ export default {
       if (!rawTravel) return
       this.travelId = rawTravel.id
       this.travel = buildTravelView(rawTravel, { showAllExpenses: this.showAllExpenses })
+      uni.setNavigationBarTitle({
+        title: this.travel.title || '旅行详情',
+      })
     },
     onMemberInput(e) {
       this.memberName = e.detail.value

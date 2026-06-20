@@ -46,14 +46,6 @@
   line-height: 1;
 }
 
-.hero-title {
-  margin-top: 18rpx;
-  color: #26313a;
-  font-size: 47rpx;
-  font-weight: 900;
-  line-height: 1.08;
-}
-
 .hero-subtitle {
   margin-top: 20rpx;
   color: #6d7b86;
