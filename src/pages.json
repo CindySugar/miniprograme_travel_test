@@ -18,13 +18,20 @@
     },
     {
       "path": "pages/expense/expense",
-      "style": { "navigationBarTitleText": "新增花销" }
+      "style": {
+        "navigationStyle": "custom",
+        "disableScroll": true,
+        "backgroundColor": "#000000",
+        "backgroundColorTop": "#000000",
+        "backgroundColorBottom": "#000000"
+      }
     },
     {
       "path": "pages/settlement/settlement",
       "style": { "navigationBarTitleText": "结算结果" }
     }
   ],
+  "subPackages": [],
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "旅行AA记账",

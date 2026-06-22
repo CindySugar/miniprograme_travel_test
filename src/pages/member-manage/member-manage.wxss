@@ -11,14 +11,14 @@ page {
   background:
     radial-gradient(rgba(255, 214, 214, 0.42) 3rpx, transparent 3.5rpx) 0 0 / 76rpx 76rpx,
     linear-gradient(180deg, #fffaf4 0%, #fffdf8 58%, #eef8f2 100%);
-  padding: 22rpx 28rpx 44rpx;
+  padding: 22rpx 28rpx 0;
   box-sizing: border-box;
 }
 
 .manage-scroll {
   flex: 1;
   min-height: 0;
-  padding-bottom: calc(56rpx + env(safe-area-inset-bottom));
+  padding-bottom: 0;
   box-sizing: border-box;
 }
 

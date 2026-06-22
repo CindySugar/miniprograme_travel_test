@@ -136,13 +136,80 @@
         <view v-else class="empty-card">还没有账单，先记一笔吧。</view>
       </view>
     </view>
+
+    <view v-if="showExpenseSheet" class="expense-overlay" catchtouchmove="true" @tap="closeExpenseSheet">
+      <view class="expense-sheet" @tap.stop="noop">
+        <view class="sheet-title">记一笔</view>
+
+        <view class="sheet-row">
+          <view class="sheet-field sheet-field--title">
+            <text class="sheet-label">账单名称</text>
+            <input class="sheet-input" placeholder="比如海景民宿" :value="expenseForm.title" data-field="title" @input="onExpenseInput" />
+          </view>
+          <view class="sheet-field sheet-field--amount">
+            <text class="sheet-label">金额</text>
+            <input class="sheet-input sheet-input--amount" type="digit" placeholder="0" :value="expenseForm.amount" data-field="amount" @input="onExpenseInput" />
+          </view>
+        </view>
+
+        <view class="sheet-block">
+          <view class="sheet-head">
+            <text class="sheet-label">谁先付了钱</text>
+          </view>
+          <view class="chip-list">
+            <view
+              v-for="member in expenseMembers"
+              :key="member.id"
+              class="choice-chip"
+              :class="{ 'choice-chip--active': expenseForm.payerId === member.id }"
+              @tap="selectPayer(member.id)"
+            >
+              {{ member.name }}
+            </view>
+          </view>
+        </view>
+
+        <view class="sheet-block">
+          <view class="sheet-head sheet-head--split">
+            <text class="sheet-label">这笔由谁分摊</text>
+            <view class="split-switch">
+              <view class="split-option" :class="{ 'split-option--active': expenseForm.splitType === 'equal' }" @tap="setSplitType('equal')">均摊</view>
+              <view class="split-option" :class="{ 'split-option--active': expenseForm.splitType === 'amount' }" @tap="setSplitType('amount')">按金额</view>
+            </view>
+          </view>
+          <view class="chip-list">
+            <view
+              v-for="member in expenseMembers"
+              :key="member.id"
+              class="choice-chip choice-chip--member"
+              :class="{ 'choice-chip--member-active': isParticipant(member.id) }"
+              @tap="toggleParticipant(member.id)"
+            >
+              {{ member.name }}
+            </view>
+          </view>
+        </view>
+
+        <view class="sheet-actions">
+          <button class="cancel-btn" @tap="closeExpenseSheet">取消</button>
+          <button class="submit-btn" @tap="saveExpense">记下这笔账单</button>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
 <script>
-import { getTravel, addMember as storeAddMember, markTravelCompleted } from '../../utils/travel-store.js'
+import { getTravel, addExpense as storeAddExpense, addMember as storeAddMember, markTravelCompleted } from '../../utils/travel-store.js'
 
 const MEMBER_TONES = ['member-tone-coral', 'member-tone-blue', 'member-tone-mint', 'member-tone-gold']
+const defaultExpenseForm = () => ({
+  title: '',
+  amount: '',
+  payerId: '',
+  participantIds: [],
+  splitType: 'equal',
+})
 
 const formatNumber = (value) => (`${value}`[1] ? `${value}` : `0${value}`)
 const formatDateTime = (value) => {
@@ -219,6 +286,9 @@ export default {
       showMemberManager: false,
       showAllExpenses: false,
       showFundPanel: false,
+      showExpenseSheet: false,
+      rawTravel: null,
+      expenseForm: defaultExpenseForm(),
     }
   },
   onLoad(query) {
@@ -232,10 +302,81 @@ export default {
       const rawTravel = await getTravel(this.travelId).catch(() => null)
       if (!rawTravel) return
       this.travelId = rawTravel.id
+      this.rawTravel = rawTravel
       this.travel = buildTravelView(rawTravel, { showAllExpenses: this.showAllExpenses })
       uni.setNavigationBarTitle({
         title: this.travel.title || '旅行详情',
       })
+    },
+    onExpenseInput(e) {
+      const { field } = e.currentTarget.dataset
+      this.expenseForm[field] = e.detail.value
+    },
+    selectPayer(memberId) {
+      this.expenseForm.payerId = memberId
+    },
+    toggleParticipant(memberId) {
+      const participantIds = new Set(this.expenseForm.participantIds)
+      if (participantIds.has(memberId)) participantIds.delete(memberId)
+      else participantIds.add(memberId)
+      this.expenseForm.participantIds = Array.from(participantIds)
+    },
+    isParticipant(memberId) {
+      return this.expenseForm.participantIds.includes(memberId)
+    },
+    setSplitType(splitType) {
+      this.expenseForm.splitType = splitType
+    },
+    noop() {},
+    openExpenseSheet() {
+      const members = this.expenseMembers
+      this.expenseForm = {
+        ...defaultExpenseForm(),
+        payerId: members[0]?.id || '',
+        participantIds: members.map((member) => member.id),
+      }
+      this.showExpenseSheet = true
+    },
+    closeExpenseSheet() {
+      this.showExpenseSheet = false
+    },
+    async saveExpense() {
+      if (!this.rawTravel) {
+        uni.showToast({ title: '请先打开旅行', icon: 'none' })
+        return
+      }
+      if (!this.expenseForm.title.trim()) {
+        uni.showToast({ title: '请输入账单名称', icon: 'none' })
+        return
+      }
+      if (!this.expenseForm.amount || Number(this.expenseForm.amount) <= 0) {
+        uni.showToast({ title: '请输入金额', icon: 'none' })
+        return
+      }
+      if (!this.expenseForm.payerId) {
+        uni.showToast({ title: '请选择付款人', icon: 'none' })
+        return
+      }
+      if (!this.expenseForm.participantIds.length) {
+        uni.showToast({ title: '至少选择一位分摊成员', icon: 'none' })
+        return
+      }
+      try {
+        await storeAddExpense(this.rawTravel.id, {
+          title: this.expenseForm.title.trim(),
+          category: '其他',
+          amount: this.expenseForm.amount,
+          note: '',
+          payerMemberId: this.expenseForm.payerId,
+          participantMemberIds: this.expenseForm.participantIds,
+          splitType: this.expenseForm.splitType,
+        })
+        this.closeExpenseSheet()
+        await this.refresh()
+        uni.showToast({ title: '花销已记录', icon: 'success' })
+      } catch (error) {
+        uni.showToast({ title: error.message, icon: 'none' })
+      }
     },
     onMemberInput(e) {
       this.memberName = e.detail.value
@@ -295,7 +436,12 @@ export default {
     },
     gotoExpense() {
       if (!this.travel) return
-      uni.navigateTo({ url: `/pages/expense/expense?travelId=${this.travel.id}` })
+      this.openExpenseSheet()
+    },
+  },
+  computed: {
+    expenseMembers() {
+      return this.rawTravel?.members || []
     },
   },
 }

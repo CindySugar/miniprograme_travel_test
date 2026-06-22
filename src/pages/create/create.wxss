@@ -3,6 +3,8 @@
 .create-page {
   position: relative;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   padding: 28rpx 28rpx 0;
   box-sizing: border-box;
   background:
@@ -11,8 +13,9 @@
 }
 
 .create-scroll {
-  height: calc(100vh - 176rpx);
-  padding-bottom: 214rpx;
+  flex: 1;
+  min-height: 0;
+  padding-bottom: 24rpx;
   box-sizing: border-box;
 }
 
@@ -467,11 +470,8 @@
 }
 
 .bottom-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 24rpx 28rpx calc(20rpx + env(safe-area-inset-bottom));
+  margin-top: 18rpx;
+  padding: 24rpx 28rpx 24rpx;
   background: rgba(255, 251, 244, 0.92);
   border-top: 2rpx solid rgba(224, 213, 195, 0.8);
   box-shadow: 0 -14rpx 28rpx rgba(76, 83, 88, 0.06);
