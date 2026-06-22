@@ -81,9 +81,17 @@ export default {
     }
   },
   onShow() {
-    this.travels = listTravels()
+    this.refresh()
   },
   methods: {
+    async refresh() {
+      try {
+        this.travels = await listTravels()
+      } catch (error) {
+        this.travels = []
+        uni.showToast({ title: error.message, icon: 'none' })
+      }
+    },
     goCreateTravel() {
       uni.navigateTo({ url: '/pages/create/create' })
     },

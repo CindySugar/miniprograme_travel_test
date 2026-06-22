@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { getTravel } from '../../utils/travel-store.js'
+import { getSettlement } from '../../utils/travel-store.js'
 
 export default {
   data() {
@@ -61,8 +61,8 @@ export default {
     this.refresh()
   },
   methods: {
-    refresh() {
-      const travel = getTravel(this.travelId)
+    async refresh() {
+      const travel = await getSettlement(this.travelId).catch(() => null)
       if (travel) {
         this.travel = travel
       }

@@ -228,8 +228,8 @@ export default {
     this.refresh()
   },
   methods: {
-    refresh() {
-      const rawTravel = getTravel(this.travelId) || null
+    async refresh() {
+      const rawTravel = await getTravel(this.travelId).catch(() => null)
       if (!rawTravel) return
       this.travelId = rawTravel.id
       this.travel = buildTravelView(rawTravel, { showAllExpenses: this.showAllExpenses })
@@ -240,15 +240,15 @@ export default {
     onMemberInput(e) {
       this.memberName = e.detail.value
     },
-    addMember() {
+    async addMember() {
       if (!this.travel) {
         uni.showToast({ title: '请先创建旅行', icon: 'none' })
         return
       }
       try {
-        storeAddMember(this.travel.id, { name: this.memberName })
+        await storeAddMember(this.travel.id, { name: this.memberName })
         this.memberName = ''
-        this.refresh()
+        await this.refresh()
         uni.showToast({ title: '成员已添加', icon: 'success' })
       } catch (error) {
         uni.showToast({ title: error.message, icon: 'none' })
@@ -283,11 +283,11 @@ export default {
     showExpenseEditHint() {
       uni.showToast({ title: '编辑账单入口稍后补上', icon: 'none' })
     },
-    finishTravel() {
+    async finishTravel() {
       if (!this.travel) return
-      markTravelCompleted(this.travel.id)
+      await markTravelCompleted(this.travel.id)
       uni.showToast({ title: '已结清', icon: 'success' })
-      this.refresh()
+      await this.refresh()
     },
     gotoSettlement() {
       if (!this.travel) return

@@ -1,457 +1,506 @@
-import { formatDate, formatMoney, roundMoney, todayISO } from './util.js'
+import { formatDate, formatMoney, todayISO } from './util.js'
 
-const STORAGE_KEY = 'travel_aa_state_v2'
+const SESSION_KEY = 'travel_aa_session_v1'
+const LOGIN_CODE_KEY = 'travel_aa_login_code'
+const DEFAULT_API_PREFIX = 'http://127.0.0.1:8000/api'
 
-const demoState = {
-  currentUser: {
-    openid: 'demo-openid-local',
-    name: '你',
-    avatarUrl: '',
-  },
-  travels: [
-    {
-      id: 'travel_demo_test4',
-      title: '测试4',
-      destination: '',
-      currency: 'CNY',
-      startDate: '2026-06-17',
-      endDate: '',
-      status: '进行中',
-      inviteCode: 'TEST04',
-      createdAt: '2026-06-17T10:00:00.000Z',
-      updatedAt: '2026-06-17',
-      members: [
-        { id: 'member_test4_owner', openid: 'demo-openid-local', name: '你', avatarUrl: '', isOwner: true },
-        { id: 'member_test4_rou', openid: 'demo-rou', name: '柔', avatarUrl: '', isOwner: false },
-        { id: 'member_test4_miao', openid: 'demo-miao', name: '喵', avatarUrl: '', isOwner: false },
-      ],
-      expenses: [],
-    },
-    {
-      id: 'travel_demo_test3',
-      title: '测试3',
-      destination: '',
-      currency: 'CNY',
-      startDate: '2026-06-17',
-      endDate: '',
-      status: '进行中',
-      inviteCode: 'TEST03',
-      createdAt: '2026-06-17T09:00:00.000Z',
-      updatedAt: '2026-06-17',
-      members: [
-        { id: 'member_test3_owner', openid: 'demo-openid-local', name: '你', avatarUrl: '', isOwner: true },
-        { id: 'member_test3_rong', openid: 'demo-rong', name: '融', avatarUrl: '', isOwner: false },
-        { id: 'member_test3_ne', openid: 'demo-ne', name: '呢', avatarUrl: '', isOwner: false },
-      ],
-      expenses: [],
-    },
-    {
-      id: 'travel_demo_test2',
-      title: '测试2',
-      destination: '',
-      currency: 'CNY',
-      startDate: '2026-06-17',
-      endDate: '',
-      status: '进行中',
-      inviteCode: 'TEST02',
-      createdAt: '2026-06-17T08:00:00.000Z',
-      updatedAt: '2026-06-17',
-      members: [
-        { id: 'member_test2_owner', openid: 'demo-openid-local', name: '你', avatarUrl: '', isOwner: true },
-        { id: 'member_test2_fang', openid: 'demo-fang', name: '方', avatarUrl: '', isOwner: false },
-        { id: 'member_test2_gai', openid: 'demo-gai', name: '改', avatarUrl: '', isOwner: false },
-        { id: 'member_test2_he', openid: 'demo-he', name: '呵', avatarUrl: '', isOwner: false },
-      ],
-      expenses: [],
-    },
-    {
-      id: 'travel_demo_test1',
-      title: '测试',
-      destination: '',
-      currency: 'CNY',
-      startDate: '2026-06-15',
-      endDate: '',
-      status: '进行中',
-      inviteCode: 'TEST01',
-      createdAt: '2026-06-15T08:00:00.000Z',
-      updatedAt: '2026-06-16',
-      members: [
-        { id: 'member_test1_owner', openid: 'demo-openid-local', name: '你', avatarUrl: '', isOwner: true },
-        { id: 'member_test1_lao1', openid: 'demo-lao1', name: '老', avatarUrl: '', isOwner: false },
-        { id: 'member_test1_lao2', openid: 'demo-lao2', name: '老', avatarUrl: '', isOwner: false },
-        { id: 'member_test1_lao3', openid: 'demo-lao3', name: '老', avatarUrl: '', isOwner: false },
-      ],
-      expenses: [
-        {
-          id: 'expense_test1_hotel',
-          title: '住宿',
-          category: '住宿',
-          amount: 1200,
-          payerId: 'member_test1_owner',
-          note: '',
-          paidAt: '2026-06-15T12:00:00.000Z',
-          shareWeights: [
-            { memberId: 'member_test1_owner', weight: 1 },
-            { memberId: 'member_test1_lao1', weight: 1 },
-            { memberId: 'member_test1_lao2', weight: 1 },
-            { memberId: 'member_test1_lao3', weight: 1 },
-          ],
-        },
-        {
-          id: 'expense_test1_food',
-          title: '聚餐',
-          category: '餐饮',
-          amount: 476,
-          payerId: 'member_test1_lao1',
-          note: '',
-          paidAt: '2026-06-15T19:00:00.000Z',
-          shareWeights: [
-            { memberId: 'member_test1_owner', weight: 1 },
-            { memberId: 'member_test1_lao1', weight: 1 },
-            { memberId: 'member_test1_lao2', weight: 1 },
-            { memberId: 'member_test1_lao3', weight: 1 },
-          ],
-        },
-      ],
-    },
-  ],
-}
-
-const clone = (value) => JSON.parse(JSON.stringify(value))
-
-const loadState = () => {
-  const stored = uni.getStorageSync(STORAGE_KEY)
-  if (!stored) {
-    saveState(clone(demoState))
-    return clone(demoState)
-  }
-  return {
-    ...clone(demoState),
-    ...stored,
-    currentUser: {
-      ...demoState.currentUser,
-      ...(stored.currentUser || {}),
-    },
-    travels: Array.isArray(stored.travels) && stored.travels.length ? stored.travels : clone(demoState.travels),
-  }
-}
-
-const saveState = (state) => {
-  uni.setStorageSync(STORAGE_KEY, state)
-}
-
-const ensureState = () => {
-  const state = loadState()
-  if (!state.travels.length) {
-    saveState(clone(demoState))
-    return clone(demoState)
-  }
-  return state
-}
-
-const currentState = () => ensureState()
-
-const getCurrentUser = () => currentState().currentUser
-
-const listTravels = () => {
-  const state = currentState()
-  return state.travels.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((travel) => enrichTravel(travel))
-}
-
-const getTravel = (travelId) => {
-  const state = currentState()
-  const travel = state.travels.find((item) => item.id === travelId)
-  return travel ? enrichTravel(travel) : null
-}
-
-const createId = (prefix) => `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`
-
-const createTravel = (payload) => {
-  const state = currentState()
-  const currentUser = state.currentUser
-  const title = (payload.title || '').trim() || '未命名旅行'
-  const ownerName = (payload.ownerName || currentUser.name || '我').trim()
-  const members = [
-    {
-      id: createId('member'),
-      openid: currentUser.openid,
-      name: ownerName,
-      avatarUrl: payload.ownerAvatarUrl || currentUser.avatarUrl || '',
-      isOwner: true,
-    },
-  ]
-
-  const extraMembers = Array.isArray(payload.members) ? payload.members : []
-  extraMembers.forEach((member) => {
-    const name = (member.name || '').trim()
-    if (!name || members.some((item) => item.name === name)) {
-      return
-    }
-    members.push({
-      id: createId('member'),
-      openid: member.openid || '',
-      name,
-      avatarUrl: member.avatarUrl || '',
-      isOwner: false,
-    })
-  })
-
-  const travel = {
-    id: createId('travel'),
-    title,
-    destination: (payload.destination || '').trim(),
-    currency: payload.currency || 'CNY',
-    startDate: payload.startDate || todayISO(),
-    endDate: payload.endDate || '',
-    status: '进行中',
-    inviteCode: payload.inviteCode || createId('invite').slice(-6).toUpperCase(),
-    createdAt: new Date().toISOString(),
-    members,
-    expenses: [],
-  }
-
-  state.travels.unshift(travel)
-  saveState(state)
-  return enrichTravel(travel)
-}
-
-const addMember = (travelId, payload) => {
-  const state = currentState()
-  const travel = state.travels.find((item) => item.id === travelId)
-  if (!travel) {
-    throw new Error('Travel not found')
-  }
-  const name = (payload.name || '').trim()
-  if (!name) {
-    throw new Error('Member name is required')
-  }
-  const exists = travel.members.some((member) => member.name === name)
-  if (exists) {
-    throw new Error('Member already exists')
-  }
-  travel.members.push({
-    id: createId('member'),
-    openid: payload.openid || '',
-    name,
-    avatarUrl: payload.avatarUrl || '',
-    isOwner: false,
-  })
-  saveState(state)
-  return enrichTravel(travel)
-}
-
-const clearMemberClaim = (travelId, memberId) => {
-  const state = currentState()
-  const travel = state.travels.find((item) => item.id === travelId)
-  if (!travel) {
-    throw new Error('Travel not found')
-  }
-  const member = travel.members.find((item) => item.id === memberId)
-  if (!member) {
-    throw new Error('Member not found')
-  }
-  if (member.isOwner) {
-    throw new Error('管理员不能清除认领')
-  }
-  member.openid = ''
-  saveState(state)
-  return enrichTravel(travel)
-}
-
-const addExpense = (travelId, payload) => {
-  const state = currentState()
-  const travel = state.travels.find((item) => item.id === travelId)
-  if (!travel) {
-    throw new Error('Travel not found')
-  }
-
-  const title = (payload.title || '').trim()
-  const amount = roundMoney(payload.amount)
-  const payerId = payload.payerId || travel.members[0]?.id
-  if (!title) {
-    throw new Error('Expense title is required')
-  }
-  if (!amount || Number.isNaN(Number(amount)) || amount <= 0) {
-    throw new Error('Expense amount is invalid')
-  }
-  if (!payerId) {
-    throw new Error('Payer is required')
-  }
-
-  const participantIds = Array.isArray(payload.participantIds) && payload.participantIds.length
-    ? payload.participantIds
-    : travel.members.map((member) => member.id)
-
-  const shareWeights = participantIds.map((memberId) => ({ memberId, weight: 1 }))
-
-  travel.expenses.unshift({
-    id: createId('expense'),
-    title,
-    category: (payload.category || '其他').trim(),
-    amount,
-    payerId,
-    note: (payload.note || '').trim(),
-    paidAt: payload.paidAt || new Date().toISOString(),
-    shareWeights,
-  })
-
-  saveState(state)
-  return enrichTravel(travel)
-}
-
-const computeTravelSummary = (travel) => {
-  const balances = travel.members.map((member) => ({
-    memberId: member.id,
-    name: member.name,
-    paid: 0,
-    owed: 0,
-    net: 0,
-  }))
-  const balanceMap = new Map(balances.map((item) => [item.memberId, item]))
-
-  travel.expenses.forEach((expense) => {
-    const payer = balanceMap.get(expense.payerId)
-    if (payer) {
-      payer.paid = roundMoney(payer.paid + Number(expense.amount))
-    }
-
-    const shares = Array.isArray(expense.shareWeights) && expense.shareWeights.length
-      ? expense.shareWeights
-      : travel.members.map((member) => ({ memberId: member.id, weight: 1 }))
-    const totalWeight = shares.reduce((sum, item) => sum + Number(item.weight || 1), 0)
-    let distributed = 0
-    shares.forEach((share, index) => {
-      const memberBalance = balanceMap.get(share.memberId)
-      if (!memberBalance) {
-        return
-      }
-      const amount = index === shares.length - 1
-        ? roundMoney(Number(expense.amount) - distributed)
-        : roundMoney((Number(expense.amount) * Number(share.weight || 1)) / totalWeight)
-      distributed = roundMoney(distributed + amount)
-      memberBalance.owed = roundMoney(memberBalance.owed + amount)
-    })
-  })
-
-  balances.forEach((item) => {
-    item.net = roundMoney(item.paid - item.owed)
-  })
-
-  return {
-    totalSpent: roundMoney(travel.expenses.reduce((sum, expense) => sum + Number(expense.amount), 0)),
-    balances,
-    transfers: buildTransfers(balances),
-  }
-}
-
-const decorateSummary = (travel, summary) => ({
-  ...summary,
-  totalSpentDisplay: formatMoney(summary.totalSpent),
-  balances: summary.balances.map((item) => ({
-    ...item,
-    paidDisplay: formatMoney(item.paid),
-    owedDisplay: formatMoney(item.owed),
-    netDisplay: formatMoney(item.net),
-    netClass: item.net < -0.005 ? 'amount-negative' : item.net > 0.005 ? 'amount-positive' : '',
-  })),
-  transfers: summary.transfers.map((item) => ({
-    ...item,
-    amountDisplay: formatMoney(item.amount),
-  })),
-  balanceLookup: Object.fromEntries(summary.balances.map((item) => [item.memberId, item])),
-  memberLookup: Object.fromEntries(travel.members.map((member) => [member.id, member])),
-  participantLookup: Object.fromEntries(travel.members.map((member) => [member.id, member.name])),
-})
-
-const buildTransfers = (balances) => {
-  const creditors = balances.filter((item) => item.net > 0.005).map((item) => ({ ...item })).sort((a, b) => b.net - a.net)
-  const debtors = balances.filter((item) => item.net < -0.005).map((item) => ({ ...item })).sort((a, b) => a.net - b.net)
-  const transfers = []
-  let debtorIndex = 0
-  let creditorIndex = 0
-
-  while (debtorIndex < debtors.length && creditorIndex < creditors.length) {
-    const debtor = debtors[debtorIndex]
-    const creditor = creditors[creditorIndex]
-    const amount = roundMoney(Math.min(-debtor.net, creditor.net))
-    if (amount <= 0) {
-      break
-    }
-
-    transfers.push({
-      fromMemberId: debtor.memberId,
-      fromName: debtor.name,
-      toMemberId: creditor.memberId,
-      toName: creditor.name,
-      amount,
-    })
-
-    debtor.net = roundMoney(debtor.net + amount)
-    creditor.net = roundMoney(creditor.net - amount)
-
-    if (Math.abs(debtor.net) < 0.005) {
-      debtorIndex += 1
-    }
-    if (Math.abs(creditor.net) < 0.005) {
-      creditorIndex += 1
-    }
-  }
-
-  return transfers
+const defaultCurrentUser = {
+  openid: '',
+  name: '我',
+  avatarUrl: '',
 }
 
 const memberBadgeClasses = ['member-badge-green', 'member-badge-coral', 'member-badge-blue', 'member-badge-mint']
+const memberToneClasses = ['member-tone-coral', 'member-tone-blue', 'member-tone-mint', 'member-tone-gold']
+const isH5Runtime = typeof window !== 'undefined' && typeof document !== 'undefined'
 
-const enrichTravel = (travel) => {
-  const summary = decorateSummary(travel, computeTravelSummary(travel))
-  const expenses = travel.expenses.map((expense) => ({
-    ...expense,
-    amountDisplay: formatMoney(expense.amount),
-    payerName: summary.participantLookup[expense.payerId] || '未知',
-    participantNames: (expense.shareWeights || []).map((share) => summary.participantLookup[share.memberId]).filter(Boolean).join('、'),
-  }))
+const API_PREFIX = (() => {
+  const envBase = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_API_BASE_URL : ''
+  if (envBase) {
+    return envBase.replace(/\/$/, '')
+  }
+  return (isH5Runtime ? '/api' : DEFAULT_API_PREFIX).replace(/\/$/, '')
+})()
+
+const isObject = (value) => value !== null && typeof value === 'object'
+const clone = (value) => JSON.parse(JSON.stringify(value))
+
+const createApiError = (message, statusCode = 0, body = null) => {
+  const error = new Error(message || '请求失败')
+  error.statusCode = statusCode
+  error.body = body
+  return error
+}
+
+const toMessage = (value) => {
+  if (typeof value === 'string') return value
+  if (Array.isArray(value)) {
+    return value.map(toMessage).filter(Boolean).join('，')
+  }
+  if (isObject(value)) {
+    return Object.values(value).map(toMessage).filter(Boolean).join('，')
+  }
+  return '请求失败'
+}
+
+const buildQuery = (params = {}) => {
+  const parts = []
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '') {
+      return
+    }
+    parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+  })
+  return parts.length ? `?${parts.join('&')}` : ''
+}
+
+const resolveUrl = (path) => {
+  if (/^https?:\/\//.test(path)) return path
+  const cleanPath = `${path}`.replace(/^\/+/, '')
+  return `${API_PREFIX}/${cleanPath}`
+}
+
+let cachedSession = null
+let sessionPromise = null
+
+const normalizeSession = (value) => {
+  const session = isObject(value) ? value : {}
+  const wechat = isObject(session.wechat) ? session.wechat : null
+  const currentUser = isObject(session.currentUser) ? session.currentUser : {}
+  return {
+    token: typeof session.token === 'string' ? session.token : '',
+    wechat,
+    currentUser: {
+      ...defaultCurrentUser,
+      ...currentUser,
+      openid: currentUser.openid || wechat?.openid || '',
+    },
+  }
+}
+
+const loadSession = () => {
+  if (cachedSession) return cachedSession
+  cachedSession = normalizeSession(uni.getStorageSync(SESSION_KEY))
+  return cachedSession
+}
+
+const saveSession = (session) => {
+  cachedSession = normalizeSession(session)
+  uni.setStorageSync(SESSION_KEY, cachedSession)
+  return cachedSession
+}
+
+const clearSession = () => {
+  cachedSession = null
+  uni.removeStorageSync(SESSION_KEY)
+}
+
+const loadLoginCode = () => {
+  const stored = uni.getStorageSync(LOGIN_CODE_KEY)
+  return typeof stored === 'string' ? stored : ''
+}
+
+const saveLoginCode = (code) => {
+  if (code) {
+    uni.setStorageSync(LOGIN_CODE_KEY, code)
+  }
+}
+
+const getLoginCode = async () => {
+  if (typeof uni.login === 'function') {
+    try {
+      const result = await new Promise((resolve, reject) => {
+        uni.login({
+          provider: 'weixin',
+          success: resolve,
+          fail: reject,
+        })
+      })
+      if (result?.code) {
+        return result.code
+      }
+    } catch {
+      // fallback below
+    }
+  }
+  const stored = loadLoginCode()
+  if (stored) {
+    return stored
+  }
+  // ponytail: stable local login code keeps the backend dev fallback identity persistent across reloads.
+  const code = 'dev-local-code'
+  saveLoginCode(code)
+  return code
+}
+
+const normalizeSummary = (travel, summary = {}) => {
+  const balances = Array.isArray(summary.balances) ? summary.balances : []
+  const transfers = Array.isArray(summary.transfers) ? summary.transfers : []
+  const memberLookup = Object.fromEntries((travel.members || []).map((member) => [member.id, member]))
 
   return {
-    ...clone(travel),
-    expenses,
-    summary,
-    expenseCount: travel.expenses.length,
-    memberCount: travel.members.length,
-    memberNames: travel.members.map((member) => member.name),
-    visibleMembers: travel.members.slice(0, 4).map((member, index) => ({
-      ...member,
-      badgeClass: memberBadgeClasses[index] || memberBadgeClasses[0],
-      initial: index === 0 ? '' : (member.name || '猫').slice(0, 1),
+    ...summary,
+    totalSpent: summary.totalSpent ?? '0.00',
+    totalSpentDisplay: formatMoney(summary.totalSpent ?? 0),
+    balances: balances.map((item) => ({
+      ...item,
+      paidDisplay: formatMoney(item.paid ?? 0),
+      owedDisplay: formatMoney(item.owed ?? 0),
+      netDisplay: formatMoney(item.net ?? 0),
+      netClass: Number(item.net) < -0.005 ? 'amount-negative' : Number(item.net) > 0.005 ? 'amount-positive' : '',
     })),
-    updatedAtDisplay: travel.updatedAt || (travel.createdAt || '').slice(0, 10),
-    displayDate: travel.endDate || formatDate(travel.startDate || travel.createdAt),
+    transfers: transfers.map((item) => ({
+      ...item,
+      amountDisplay: formatMoney(item.amount ?? 0),
+    })),
+    balanceLookup: Object.fromEntries(balances.map((item) => [item.memberId, item])),
+    memberLookup,
+    participantLookup: Object.fromEntries((travel.members || []).map((member) => [member.id, member.name])),
   }
 }
 
-const markTravelCompleted = (travelId) => {
-  const state = currentState()
-  const travel = state.travels.find((item) => item.id === travelId)
-  if (!travel) {
-    throw new Error('Travel not found')
+const normalizeMember = (member) => ({
+  ...member,
+  id: member.id,
+  userId: member.userId,
+  name: member.name || member.user?.nickname || '',
+  avatarUrl: member.avatarUrl || member.user?.avatarUrl || '',
+  isOwner: !!member.isOwner,
+  claimed: !!member.claimed,
+  openid: member.claimed ? 'bound' : '',
+  canBookkeep: member.canBookkeep !== false,
+  status: member.user?.status || 'enabled',
+})
+
+const normalizeExpense = (expense) => {
+  const participantShares = Array.isArray(expense.participantShares) ? expense.participantShares : []
+  const participants = Array.isArray(expense.participants) ? expense.participants : []
+  return {
+    ...expense,
+    id: expense.id,
+    expenseId: expense.expenseId || expense.id,
+    title: expense.title || '',
+    category: expense.category || '其他',
+    amount: expense.amount ?? '0.00',
+    amountDisplay: formatMoney(expense.amount ?? 0),
+    payerId: expense.payerMemberId,
+    payerMemberId: expense.payerMemberId,
+    payerName: expense.payerName || '',
+    payerAvatarUrl: expense.payerAvatarUrl || '',
+    splitType: expense.splitType || 'equal',
+    participants: participants.map((item) => ({
+      memberId: item.memberId,
+      name: item.name,
+      avatarUrl: item.avatarUrl || '',
+    })),
+    participantShares: participantShares.map((item) => ({
+      memberId: item.memberId,
+      name: item.name,
+      shareAmount: item.shareAmount ?? '0.00',
+    })),
+    shareWeights: participantShares.map((item) => ({
+      memberId: item.memberId,
+      weight: 1,
+      shareAmount: item.shareAmount ?? '0.00',
+    })),
+    note: expense.note || '',
+    paidAt: expense.paidAt || expense.createdAt || '',
+    createdAt: expense.createdAt || expense.paidAt || '',
+    editable: expense.editable !== false,
   }
-  travel.status = '已结清'
-  travel.endDate = travel.endDate || todayISO()
-  saveState(state)
-  return enrichTravel(travel)
 }
+
+const normalizeTravel = (travel) => {
+  const members = Array.isArray(travel.members) ? travel.members.map(normalizeMember) : []
+  const expenses = Array.isArray(travel.expenses) ? travel.expenses.map(normalizeExpense) : []
+  const base = clone(travel)
+  const settings = {
+    allowInvite: true,
+    allowMemberFamilyEdit: true,
+    allowInvitedIdentity: true,
+    requireAvatar: false,
+    ...(travel.settings || {}),
+  }
+
+  return {
+    ...base,
+    members,
+    expenses,
+    settings,
+    summary: normalizeSummary({ members }, travel.summary || {}),
+    memberCount: travel.memberCount ?? members.length,
+    expenseCount: travel.expenseCount ?? expenses.length,
+    memberNames: members.map((member) => member.name),
+    visibleMembers: members.slice(0, 4).map((member, index) => ({
+      ...member,
+      badgeClass: memberBadgeClasses[index % memberBadgeClasses.length],
+      initial: index === 0 ? '' : (member.name || '猫').slice(0, 1),
+    })),
+    updatedAtDisplay: travel.updatedAt ? travel.updatedAt.slice(0, 10) : (travel.createdAt || '').slice(0, 10),
+    displayDate: travel.endDate || formatDate(travel.startDate || travel.createdAt || todayISO()),
+  }
+}
+
+const parseResponseBody = (res) => {
+  const rawBody = typeof res.data === 'string'
+    ? (() => {
+        try {
+          return JSON.parse(res.data)
+        } catch {
+          return res.data
+        }
+      })()
+    : res.data
+  const body = isObject(rawBody) ? rawBody : {}
+
+  if (res.statusCode < 200 || res.statusCode >= 300) {
+    throw createApiError(toMessage(body.message ?? body.detail ?? rawBody), res.statusCode, body)
+  }
+  if (isObject(body) && typeof body.code === 'number' && body.code !== 0) {
+    throw createApiError(toMessage(body.message), res.statusCode, body)
+  }
+  return isObject(body) && 'data' in body ? body.data : rawBody
+}
+
+const requestOnce = (path, { method = 'GET', data, headers = {}, skipAuth = false } = {}) => new Promise((resolve, reject) => {
+  const session = loadSession()
+  const header = {
+    'content-type': 'application/json',
+    ...headers,
+  }
+
+  if (!skipAuth) {
+    if (!session.token) {
+      reject(createApiError('未登录', 401))
+      return
+    }
+    header.Authorization = `Bearer ${session.token}`
+  }
+
+  uni.request({
+    url: resolveUrl(path),
+    method,
+    data,
+    header,
+    success(res) {
+      try {
+        resolve(parseResponseBody(res))
+      } catch (error) {
+        reject(error)
+      }
+    },
+    fail(err) {
+      reject(createApiError(err.errMsg || '网络请求失败'))
+    },
+  })
+})
+
+const request = async (path, options = {}) => {
+  if (!options.skipAuth) {
+    await ensureSession()
+  }
+
+  try {
+    return await requestOnce(path, options)
+  } catch (error) {
+    if (!options.skipAuth && error.statusCode === 401) {
+      clearSession()
+      await ensureSession()
+      return requestOnce(path, options)
+    }
+    throw error
+  }
+}
+
+const ensureSession = async () => {
+  const session = loadSession()
+  if (session.token) {
+    return session
+  }
+  if (sessionPromise) {
+    return sessionPromise
+  }
+
+  sessionPromise = (async () => {
+    const code = await getLoginCode()
+    const payload = await requestOnce('auth/wechat-login', {
+      method: 'POST',
+      data: { code },
+      skipAuth: true,
+    })
+    return saveSession({
+      token: payload.token,
+      wechat: payload.wechat,
+      currentUser: {
+        ...defaultCurrentUser,
+        openid: payload.wechat?.openid || '',
+      },
+    })
+  })().finally(() => {
+    sessionPromise = null
+  })
+
+  return sessionPromise
+}
+
+const getCurrentUser = () => {
+  const session = loadSession()
+  if (!session.token && !sessionPromise) {
+    void ensureSession()
+  }
+  return session.currentUser
+}
+
+const uploadAvatar = async (filePath) => {
+  if (!filePath) {
+    throw new Error('请选择头像')
+  }
+  const session = loadSession()
+
+  const payload = await new Promise((resolve, reject) => {
+    uni.uploadFile({
+      url: resolveUrl('uploads/avatar'),
+      filePath,
+      name: 'file',
+      header: session.token ? { Authorization: `Bearer ${session.token}` } : {},
+      formData: {},
+      success(res) {
+        const body = typeof res.data === 'string'
+          ? (() => {
+              try {
+                return JSON.parse(res.data)
+              } catch {
+                return res.data
+              }
+            })()
+          : res.data
+        const data = isObject(body) && 'data' in body ? body.data : body
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          reject(createApiError(toMessage(body?.message ?? body?.detail ?? body), res.statusCode, body))
+          return
+        }
+        if (isObject(body) && typeof body.code === 'number' && body.code !== 0) {
+          reject(createApiError(toMessage(body.message), res.statusCode, body))
+          return
+        }
+        resolve(data)
+      },
+      fail(err) {
+        reject(createApiError(err.errMsg || '上传失败'))
+      },
+    })
+  })
+
+  return payload?.url || payload?.avatarUrl || ''
+}
+
+const listTravels = async (params = {}) => {
+  const payload = await request(`travels${buildQuery(params)}`)
+  const list = Array.isArray(payload?.list) ? payload.list : []
+  return list.map(normalizeTravel)
+}
+
+const getTravel = async (travelId) => normalizeTravel(await request(`travels/${travelId}`))
+
+const getSettlement = async (travelId) => {
+  const travel = await getTravel(travelId)
+  const summary = await request(`travels/${travelId}/settlement`)
+  return {
+    ...travel,
+    summary: normalizeSummary(travel, summary || {}),
+  }
+}
+
+const getSettlementDetail = async (travelId) => {
+  const travel = await getTravel(travelId)
+  const detail = await request(`travels/${travelId}/settlement/detail`)
+  return {
+    ...travel,
+    settlementDetail: detail,
+  }
+}
+
+const getInviteDetail = async (inviteCode) => request(`invites/${inviteCode}`, { skipAuth: true })
+
+const joinTravel = async (payload) => normalizeTravel(await request('travels/join', {
+  method: 'POST',
+  data: payload,
+}))
+
+const createTravel = async (payload) => normalizeTravel(await request('travels', {
+  method: 'POST',
+  data: payload,
+}))
+
+const updateTravel = async (travelId, payload) => normalizeTravel(await request(`travels/${travelId}`, {
+  method: 'PATCH',
+  data: payload,
+}))
+
+const getMe = async (travelId) => request(`travels/${travelId}/me`)
+
+const updateMe = async (travelId, payload) => request(`travels/${travelId}/me`, {
+  method: 'PATCH',
+  data: payload,
+})
+
+const bindTravelUser = async (travelId, userId) => request(`travels/${travelId}/binding`, {
+  method: 'POST',
+  data: { userId },
+})
+
+const unbindTravelUser = async (travelId) => request(`travels/${travelId}/binding`, {
+  method: 'DELETE',
+})
+
+const addMember = async (travelId, payload) => normalizeTravel(await request(`travels/${travelId}/members`, {
+  method: 'POST',
+  data: payload,
+}))
+
+const updateMember = async (travelId, memberId, payload) => request(`travels/${travelId}/members/${memberId}`, {
+  method: 'PATCH',
+  data: payload,
+})
+
+const removeMember = async (travelId, memberId) => normalizeTravel(await request(`travels/${travelId}/members/${memberId}`, {
+  method: 'DELETE',
+}))
+
+const clearMemberClaim = async (travelId, memberId) => normalizeTravel(await request(`travels/${travelId}/members/${memberId}/clear-claim`, {
+  method: 'POST',
+}))
+
+const addExpense = async (travelId, payload) => request(`travels/${travelId}/expenses`, {
+  method: 'POST',
+  data: payload,
+})
+
+const markTravelCompleted = async (travelId, endDate = todayISO()) => normalizeTravel(await request(`travels/${travelId}/settle`, {
+  method: 'POST',
+  data: { endDate },
+}))
 
 export {
   addExpense,
   addMember,
+  bindTravelUser,
   clearMemberClaim,
   createTravel,
-  currentState,
-  ensureState,
+  ensureSession,
   getCurrentUser,
+  getInviteDetail,
+  getMe,
+  getSettlement,
+  getSettlementDetail,
   getTravel,
+  joinTravel,
   listTravels,
   markTravelCompleted,
-  computeTravelSummary,
-  decorateSummary,
+  removeMember,
+  unbindTravelUser,
+  updateMember,
+  updateMe,
+  updateTravel,
+  uploadAvatar,
 }
-

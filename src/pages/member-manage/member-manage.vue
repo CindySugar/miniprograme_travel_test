@@ -106,7 +106,7 @@
 </template>
 
 <script>
-import { getTravel, addMember as storeAddMember, clearMemberClaim } from '../../utils/travel-store.js'
+import { getTravel, addMember as storeAddMember, clearMemberClaim, removeMember as storeRemoveMember, updateMember, updateTravel } from '../../utils/travel-store.js'
 
 const MEMBER_TONES = ['member-tone-coral', 'member-tone-blue', 'member-tone-mint', 'member-tone-gold']
 const createFamilyId = () => `family_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`
@@ -189,10 +189,11 @@ export default {
     this.refresh()
   },
   methods: {
-    refresh(stateOverrides = {}) {
-      const travel = getTravel(this.travelId) || null
+    async refresh(stateOverrides = {}) {
+      const travel = await getTravel(this.travelId).catch(() => null)
       if (!travel) return
       this.travelId = travel.id
+      this.allowInvite = travel.settings?.allowInvite ?? this.allowInvite
       this.travel = buildView(travel, {
         allowInvite: this.allowInvite,
         selectedFamilyMemberIds: this.selectedFamilyMemberIds,
@@ -203,23 +204,28 @@ export default {
         ...stateOverrides,
       })
     },
-    toggleInvite() {
+    async toggleInvite() {
       this.allowInvite = !this.allowInvite
-      this.refresh({ allowInvite: this.allowInvite })
+      try {
+        await updateTravel(this.travel.id, { settings: { allowInvite: this.allowInvite } })
+        await this.refresh({ allowInvite: this.allowInvite })
+      } catch (error) {
+        uni.showToast({ title: error.message, icon: 'none' })
+      }
     },
     onMemberInput(e) {
       this.newMemberName = e.detail.value
     },
-    addMember() {
+    async addMember() {
       const name = (this.newMemberName || '').trim()
       if (!name) {
         uni.showToast({ title: '请输入成员昵称', icon: 'none' })
         return
       }
       try {
-        storeAddMember(this.travel.id, { name })
+        await storeAddMember(this.travel.id, { name })
         this.newMemberName = ''
-        this.refresh()
+        await this.refresh()
         uni.showToast({ title: '成员已添加', icon: 'success' })
       } catch (error) {
         uni.showToast({ title: error.message, icon: 'none' })
@@ -285,7 +291,7 @@ export default {
         [id]: e.detail.value,
       }
     },
-    saveMemberName(e) {
+    async saveMemberName(e) {
       const { id } = e.currentTarget.dataset
       const member = this.travel.membersDecorated.find((item) => item.id === id)
       const draftName = (this.draftNames[id] ?? member?.draftName ?? '').trim()
@@ -293,35 +299,61 @@ export default {
         uni.showToast({ title: '昵称不能为空', icon: 'none' })
         return
       }
-      uni.showToast({ title: '昵称已保存', icon: 'success' })
+      try {
+        await updateMember(this.travel.id, id, { nickname: draftName })
+        await this.refresh()
+        uni.showToast({ title: '昵称已保存', icon: 'success' })
+      } catch (error) {
+        uni.showToast({ title: error.message, icon: 'none' })
+      }
     },
-    toggleBookkeeping(e) {
+    async toggleBookkeeping(e) {
       const { id } = e.currentTarget.dataset
+      const member = this.travel.membersDecorated.find((item) => item.id === id)
+      if (!member) return
       const nextDisabledBookkeeping = {
         ...this.disabledBookkeeping,
         [id]: !this.disabledBookkeeping[id],
       }
       this.disabledBookkeeping = nextDisabledBookkeeping
-      this.refresh({ disabledBookkeeping: nextDisabledBookkeeping })
+      try {
+        await updateMember(this.travel.id, id, { canBookkeep: !nextDisabledBookkeeping[id] })
+        await this.refresh({ disabledBookkeeping: nextDisabledBookkeeping })
+      } catch (error) {
+        uni.showToast({ title: error.message, icon: 'none' })
+      }
     },
-    clearClaim(e) {
+    async clearClaim(e) {
       const { id } = e.currentTarget.dataset
       try {
-        clearMemberClaim(this.travel.id, id)
-        this.refresh()
+        await clearMemberClaim(this.travel.id, id)
+        await this.refresh()
         uni.showToast({ title: '已回退为待认领', icon: 'none' })
       } catch (error) {
         uni.showToast({ title: error.message, icon: 'none' })
       }
     },
-    removeMember(e) {
+    async removeMember(e) {
       const { id } = e.currentTarget.dataset
       const member = this.travel.membersDecorated.find((item) => item.id === id)
       if (member?.isOwner) {
         uni.showToast({ title: '管理员不能移出组队', icon: 'none' })
         return
       }
-      uni.showToast({ title: '移出组队稍后接入', icon: 'none' })
+      try {
+        const nextFamilies = this.families
+          .map((family) => ({
+            ...family,
+            memberIds: family.memberIds.filter((memberId) => memberId !== id),
+          }))
+          .filter((family) => family.memberIds.length >= 2)
+        this.families = nextFamilies
+        await storeRemoveMember(this.travel.id, id)
+        await this.refresh({ families: nextFamilies })
+        uni.showToast({ title: '已移出组队', icon: 'success' })
+      } catch (error) {
+        uni.showToast({ title: error.message, icon: 'none' })
+      }
     },
   },
 }

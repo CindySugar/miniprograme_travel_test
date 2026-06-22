@@ -75,6 +75,16 @@
             <button class="add-btn" @tap="addPreviewMember">添加</button>
           </view>
 
+          <view v-if="members.length" class="member-preview-list">
+            <block v-for="member in members" :key="member.id">
+              <view class="member-preview-item">
+                <view class="member-preview-avatar">{{ member.initial }}</view>
+                <text class="member-preview-name">{{ member.name }}</text>
+                <text v-if="member.isOwner" class="member-preview-badge">管理员</text>
+              </view>
+            </block>
+          </view>
+
           <view class="team-divider"></view>
           <view class="section-head family-head">
             <view class="team-title-row">
@@ -168,7 +178,7 @@
 </template>
 
 <script>
-import { createTravel as storeCreateTravel, getCurrentUser } from '../../utils/travel-store.js'
+import { createTravel as storeCreateTravel, ensureSession, getCurrentUser, uploadAvatar } from '../../utils/travel-store.js'
 import { formatDate, todayISO } from '../../utils/util.js'
 
 const decorateMember = (member) => ({
@@ -201,7 +211,8 @@ export default {
       ownerInitial: '猫',
     }
   },
-  onShow() {
+  async onShow() {
+    await ensureSession()
     const currentUser = getCurrentUser()
     const ownerName = this.form.ownerName || ''
     const ownerAvatarUrl = this.form.ownerAvatarUrl || currentUser.avatarUrl || ''
@@ -248,11 +259,16 @@ export default {
     onMemberInput(e) {
       this.newMemberName = e.detail.value
     },
-    onChooseAvatar(e) {
+    async onChooseAvatar(e) {
       const { avatarUrl } = e.detail
       if (!avatarUrl) return
-      this.form.ownerAvatarUrl = avatarUrl
-      this.members = this.members.map((member) => (member.isOwner ? decorateMember({ ...member, avatarUrl }) : member))
+      try {
+        const uploadedUrl = await uploadAvatar(avatarUrl)
+        this.form.ownerAvatarUrl = uploadedUrl || avatarUrl
+        this.members = this.members.map((member) => (member.isOwner ? decorateMember({ ...member, avatarUrl: this.form.ownerAvatarUrl }) : member))
+      } catch (error) {
+        uni.showToast({ title: error.message, icon: 'none' })
+      }
     },
     addPreviewMember() {
       const name = (this.newMemberName || '').trim()
@@ -276,22 +292,29 @@ export default {
       const { field } = e.currentTarget.dataset
       this.permissions[field] = e.detail.value
     },
-    createTravel() {
+    async createTravel() {
       const { title, destination, ownerName, ownerAvatarUrl, startDate } = this.form
       if (!title.trim()) {
         uni.showToast({ title: '请输入组队名称', icon: 'none' })
         return
       }
-      const travel = storeCreateTravel({
-        title,
-        destination,
-        ownerName,
-        ownerAvatarUrl,
-        startDate,
-        members: this.members.filter((member) => !member.isOwner).map((member) => ({ name: member.name })),
-      })
-      uni.showToast({ title: '队伍已创建', icon: 'success' })
-      uni.redirectTo({ url: `/pages/logs/logs?travelId=${travel.id}` })
+      try {
+        const travel = await storeCreateTravel({
+          title,
+          destination,
+          ownerName,
+          ownerAvatarUrl,
+          startDate,
+          advanceAmount: this.form.advanceAmount,
+          catFund: this.form.catFund,
+          settings: this.permissions,
+          members: this.members.filter((member) => !member.isOwner).map((member) => ({ name: member.name })),
+        })
+        uni.showToast({ title: '队伍已创建', icon: 'success' })
+        uni.redirectTo({ url: `/pages/logs/logs?travelId=${travel.id}` })
+      } catch (error) {
+        uni.showToast({ title: error.message, icon: 'none' })
+      }
     },
   },
 }

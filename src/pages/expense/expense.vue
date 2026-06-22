@@ -66,8 +66,8 @@ export default {
     this.refresh()
   },
   methods: {
-    refresh() {
-      const travel = getTravel(this.travelId) || null
+    async refresh() {
+      const travel = await getTravel(this.travelId).catch(() => null)
       if (!travel) return
       const payerId = this.form.payerId || travel.members[0]?.id || ''
       const payerName = travel.members.find((member) => member.id === payerId)?.name || travel.members[0]?.name || ''
@@ -101,13 +101,13 @@ export default {
       this.form.participantIds = Array.from(participantIds)
       this.travel.memberPills = this.travel.members.map((member) => ({ ...member, selected: participantIds.has(member.id) }))
     },
-    saveExpense() {
+    async saveExpense() {
       if (!this.travel) {
         uni.showToast({ title: '请先创建旅行', icon: 'none' })
         return
       }
       try {
-        storeAddExpense(this.travel.id, {
+        await storeAddExpense(this.travel.id, {
           title: this.form.title,
           category: this.form.category,
           amount: this.form.amount,
@@ -124,7 +124,7 @@ export default {
           payerId: this.travel.members[0]?.id || '',
           participantIds: this.travel.members.map((member) => member.id),
         }
-        this.refresh()
+        await this.refresh()
       } catch (error) {
         uni.showToast({ title: error.message, icon: 'none' })
       }
