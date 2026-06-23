@@ -75,12 +75,15 @@
             <button class="add-btn" @tap="addPreviewMember">添加</button>
           </view>
 
-          <view v-if="members.length" class="member-preview-list">
-            <block v-for="member in members" :key="member.id">
+          <view v-if="previewMembers.length" class="member-preview-list">
+            <block v-for="member in previewMembers" :key="member.id">
               <view class="member-preview-item">
                 <view class="member-preview-avatar">{{ member.initial }}</view>
-                <text class="member-preview-name">{{ member.name }}</text>
-                <text v-if="member.isOwner" class="member-preview-badge">管理员</text>
+                <view class="member-preview-copy">
+                  <text class="member-preview-name">{{ member.name }}</text>
+                  <text class="member-preview-status">待认领</text>
+                </view>
+                <button class="member-preview-remove" hover-class="none" @tap="removePreviewMember(member.id)">×</button>
               </view>
             </block>
           </view>
@@ -92,7 +95,18 @@
               <view class="section-desc inline-desc">结算时按家庭合并转账</view>
             </view>
           </view>
-          <view class="family-preview">添加同行猫猫后，可以提前把同一个家庭组合好。</view>
+          <view class="family-builder">
+            <view class="family-label">选择成员</view>
+            <view class="family-member-list">
+              <block v-for="member in familyMembers" :key="member.id">
+                <button class="family-member-btn" hover-class="none">{{ member.name }}</button>
+              </block>
+            </view>
+
+            <view class="family-label family-owner-label">选择家主</view>
+            <view class="family-owner-empty">先选择至少两只猫猫。</view>
+            <button class="family-submit" disabled hover-class="none">组成家庭</button>
+          </view>
         </view>
       </view>
 
@@ -211,12 +225,23 @@ export default {
       ownerInitial: '猫',
     }
   },
+  computed: {
+    ownerDisplayName() {
+      return (this.form.ownerName || '').trim() || '管理员自己'
+    },
+    previewMembers() {
+      return this.members.filter((item) => !item.isOwner)
+    },
+    familyMembers() {
+      return this.members.map((member) => (member.isOwner ? decorateMember({ ...member, name: this.ownerDisplayName }) : member))
+    },
+  },
   async onShow() {
     await ensureSession()
     const currentUser = getCurrentUser()
     const ownerName = this.form.ownerName || ''
     const ownerAvatarUrl = this.form.ownerAvatarUrl || currentUser.avatarUrl || ''
-    const previewOwnerName = ownerName || '使用微信昵称'
+    const previewOwnerName = ownerName || '管理员自己'
     const startDate = this.form.startDate || todayISO()
     this.currentUser = currentUser
     this.form.ownerName = ownerName
@@ -243,8 +268,8 @@ export default {
       const value = e.detail.value || ''
       this.form[field] = value
       if (field === 'ownerName') {
-        this.ownerInitial = (value || '猫').slice(0, 1)
-        this.members = this.members.map((member) => (member.isOwner ? decorateMember({ ...member, name: value || '使用微信昵称' }) : member))
+        this.ownerInitial = (value || '管').slice(0, 1)
+        this.members = this.members.map((member) => (member.isOwner ? decorateMember({ ...member, name: value || '管理员自己' }) : member))
       }
       if (field === 'startDate') {
         this.displayStartDate = formatDate(value || todayISO())
@@ -253,8 +278,8 @@ export default {
     onOwnerNameBlur(e) {
       const value = e.detail.value || ''
       this.form.ownerName = value
-      this.ownerInitial = (value || '猫').slice(0, 1)
-      this.members = this.members.map((member) => (member.isOwner ? decorateMember({ ...member, name: value || '使用微信昵称' }) : member))
+      this.ownerInitial = (value || '管').slice(0, 1)
+      this.members = this.members.map((member) => (member.isOwner ? decorateMember({ ...member, name: value || '管理员自己' }) : member))
     },
     onMemberInput(e) {
       this.newMemberName = e.detail.value
@@ -287,6 +312,9 @@ export default {
         isOwner: false,
       }).map(decorateMember)
       this.newMemberName = ''
+    },
+    removePreviewMember(id) {
+      this.members = this.members.filter((member) => member.isOwner || member.id !== id)
     },
     togglePermission(e) {
       const { field } = e.currentTarget.dataset
